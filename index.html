@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LB-K SMART - Boutique Intelligente Kolwezi</title>
+    
+    <!-- Métadonnées SEO -->
+    <meta name="description" content="Boutique LB-K SMART - Électronique, Mode, Accessoires, Produits Pharmaceutiques à Kolwezi, RDC">
+    <meta name="keywords" content="boutique, Kolwezi, RDC, électronique, mode, pharmacie, livraison">
+    <meta name="author" content="LB-K SMART">
+    
+    <!-- PWA Configuration -->
+    <meta name="theme-color" content="#0a0a1a">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-192x192.png">
+    <link rel="apple-touch-icon" href="icon-512x512.png">
+    
+    <!-- CSS Externes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+    
+    <style>
+        /* ============ VARIABLES GLOBALES ============ */
+        :root {
+            --primary: #0a0a1a;
+            --secondary: #00f3ff;
+            --accent: #7b00ff;
+            --danger: #ff0066;
+            --success: #00ff9d;
+            --warning: #ffcc00;
+            --light: #f0f8ff;
+            --dark: #050510;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-dark: rgba(5, 5, 16, 0.95);
+            --shadow: 0 8px 32px rgba(0, 243, 255, 0.15);
+            --shadow-lg: 0 20px 60px rgba(0, 243, 255, 0.2);
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-title: 'Orbitron', sans-serif;
+            --font-text: 'Exo 2', sans-serif;
+            --gradient: linear-gradient(135deg, var(--accent), var(--secondary));
+        }
+
+        /* ============ RÉINITIALISATION ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-text);
+            background: var(--primary);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: var(--transition);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============ ANIMATIONS ============ */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        @keyframes slideInDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .float { animation: float 3s ease-in-out infinite; }
+        .pulse { animation: pulse 2s ease-in-out infinite; }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+
+        /* ============ HEADER PRINCIPAL ============ */
+        .main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 10, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-title);
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        /* Menu Hamburger */
+        .hamburger-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px;
+            background: transparent;
+            border: none;
+        }
+
+        .hamburger-line {
+            width: 25px;
+            height: 2px;
+            background: var(--secondary);
+            transition: var(--transition);
+            border-radius: 2px;
+        }
+
+        .hamburger-menu.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger-menu.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-menu.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* ============ MENU TIROIR ============ */
+        .drawer-menu {
+            position: fixed;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            background: var(--glass-dark);
+            backdrop-filter: blur(30px);
+            z-index: 999;
+            padding: 2rem;
+            border-bottom: 1px solid var(--secondary);
+            transition: top 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .drawer-menu.active {
+            top: 80px;
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .menu-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 243, 255, 0.1);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        /* ============ BOUTONS FLOTTANTS ============ */
+        .floating-buttons {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1001;
+        }
+
+        .floating-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: var(--gradient);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .floating-button:hover {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .floating-button.whatsapp {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+        }
+
+        .floating-button.ai {
+            background: linear-gradient(135deg, #7b00ff, #ff0066);
+        }
+
+        .floating-button.cart {
+            background: linear-gradient(135deg, #ffaa00, #ff0066);
+        }
+
+        .floating-button.display-mode {
+            background: linear-gradient(135deg, #00ff9d, #00f3ff);
+        }
+
+        .floating-button.admin {
+            background: linear-gradient(135deg, #ff0066, #7b00ff);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* ============ BARRE DES TÂCHES (CATALOGUE) ============ */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--glass-dark);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 243, 255, 0.2);
+            padding: 1rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            z-index: 999;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .taskbar.active {
+            transform: translateY(0);
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .taskbar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .taskbar-title {
+            font-family: var(--font-title);
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+
+        .taskbar-close {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .catalog-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            padding: 1rem;
+            transition: var(--transition);
+        }
+
+        .catalog-item:hover {
+            background: rgba(0, 243, 255, 0.1);
+        }
+
+        /* ============ PAGE D'ACCUEIL ============ */
+        .home-container {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--gradient-light);
+            border-radius: var(--radius);
+            margin-bottom: 3rem;
+        }
+
+        .hero-title {
+            font-family: var(--font-title);
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            border-radius: var(--radius);
+            margin-bottom: 3rem;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* ============ BOUTIQUES ============ */
+        .boutique-section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius);
+        }
+
+        .boutique-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .boutique-title {
+            font-family: var(--font-title);
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .product-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+
+        .product-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-new {
+            background: var(--accent);
+            color: white;
+        }
+
+        .badge-promo {
+            background: var(--warning);
+            color: black;
+        }
+
+        .badge-popular {
+            background: var(--success);
+            color: white;
+        }
+
+        .product-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .status-instock {
+            background: rgba(0, 255, 157, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-order {
+            background: rgba(255, 0, 102, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid var(--secondary);
+            background: transparent;
+            color: var(--secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            background: transparent;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            color: var(--light);
+            padding: 0.5rem;
+            border-radius: var(--radius);
+        }
+
+        /* ============ PANIER ============ */
+        .cart-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .cart-modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .cart-container {
+            background: var(--glass-dark);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .cart-items {
+            margin: 2rem 0;
+        }
+
+        .cart-total {
+            text-align: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            color: var(--secondary);
+        }
+
+        /* ============ PUBLICITÉ ============ */
+        .ad-bar {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background: rgba(123, 0, 255, 0.2);
+            padding: 1rem;
+            z-index: 998;
+            display: none;
+        }
+
+        .ad-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .ad-close {
+            background: none;
+            border: none;
+            color: var(--light);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* ============ NEWSLETTER ============ */
+        .newsletter-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 243, 255, 0.1);
+            padding: 1rem;
+            z-index: 997;
+            display: none;
+        }
+
+        .newsletter-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 1rem;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+        }
+
+        /* ============ VISITEURS ============ */
+        .visitors-widget {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius);
+            padding: 1rem;
+            z-index: 996;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        .visitors-count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary);
+            text-align: center;
+        }
+
+        /* ============ ADMIN ============ */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--glass-dark);
+            z-index: 10001;
+            display: none;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .admin-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .admin-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        .admin-title {
+            font-family: var(--font-title);
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .admin-input {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            margin-bottom: 1rem;
+        }
+
+        /* ============ TARIFICATION ============ */
+        .pricing-section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .pricing-card h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-family: var(--font-title);
+        }
+
+        /* ============ TERMINAL ============ */
+        .terminal {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+     
