@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="futuristic" data-mode="auto">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>LB-K SMART 2026 | Boutique Intelligente Kolwezi</title>
+    
+    <!-- SEO OPTIMISÉ -->
+    <meta name="description" content="LB-K SMART 2026 - Boutique en ligne intelligente à Kolwezi. Électronique, Mode, Produits Pharmaceutiques. Commande WhatsApp, IA intégrée, Livraison RDC.">
+    <meta name="keywords" content="LB-K SMART, boutique Kolwezi, e-commerce RDC, commande WhatsApp, livraison Kolwezi, Mobile Money RDC">
+    <meta name="author" content="Laurent Kabesha & Betty Kabey">
+    <meta name="robots" content="index, follow">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0a0a1f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <!-- STYLES -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ===== VARIABLES ===== */
+        :root {
+            --primary: #0a0a1f;
+            --secondary: #00f3ff;
+            --accent: #ff00ff;
+            --danger: #ff0066;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --text: #ffffff;
+            --text-secondary: #b0b0b0;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --header-height: 70px;
+            --border-radius: 15px;
+            --transition: all 0.3s ease;
+        }
+
+        /* Reset */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { 
+            font-family: 'Exo 2', sans-serif;
+            background: var(--primary);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Loader */
+        #globalLoader {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        .loader {
+            width: 60px; height: 60px;
+            border: 4px solid transparent;
+            border-top-color: var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Header */
+        .main-header {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: var(--header-height);
+            background: rgba(10, 10, 31, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--secondary);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+
+        /* Menu déroulant */
+        .drawer-menu {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 31, 0.98);
+            backdrop-filter: blur(30px);
+            border-bottom: 2px solid var(--secondary);
+            transform: translateY(-100%);
+            transition: transform 0.5s ease;
+            z-index: 999;
+            padding: 20px;
+        }
+        .drawer-menu.active { transform: translateY(0); }
+
+        /* Barre publicitaire */
+        .ad-bar {
+            margin-top: var(--header-height);
+            background: linear-gradient(90deg, rgba(0,243,255,0.1), rgba(255,0,255,0.1));
+            padding: 10px 0;
+            overflow: hidden;
+        }
+        .ad-container {
+            display: flex;
+            animation: slideAds 30s linear infinite;
+        }
+        @keyframes slideAds {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Bureau intelligent */
+        .smart-desktop {
+            display: flex;
+            min-height: calc(100vh - var(--header-height) - 60px);
+            margin-top: 20px;
+            padding: 0 20px;
+            gap: 20px;
+        }
+        .desktop-section {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--glass-border);
+        }
+        .badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .badge.yellow {
+            background: #ffaa00;
+            color: #000;
+        }
+        .badge.green {
+            background: #00ff88;
+            color: #000;
+        }
+
+        /* Produits */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            background: var(--glass);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+        }
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+        .product-price {
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn.whatsapp {
+            background: #25D366;
+            color: white;
+        }
+        .btn.cart {
+            background: var(--secondary);
+            color: var(--primary);
+        }
+
+        /* Barre des tâches */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            border-top: 2px solid var(--secondary);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 990;
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .taskbar.active { transform: translateY(0); }
+        .taskbar-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary);
+            color: var(--primary);
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 989;
+            font-size: 1.5rem;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+
+        /* Boutons flottants */
+        .floating-buttons {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 980;
+        }
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        .floating-btn.whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); }
+        .floating-btn.ai { background: linear-gradient(135deg, var(--accent), var(--secondary)); }
+        .floating-btn.cart { background: linear-gradient(135deg, var(--warning), #ff6b6b); }
+        .floating-btn.mode { background: linear-gradient(135deg, var(--secondary), #00ff88); }
+        .floating-btn.admin { background: linear-gradient(135deg, var(--danger), #ff0066); }
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Panier */
+        .cart-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--primary);
+            border-left: 2px solid var(--secondary);
+            z-index: 1001;
+            transition: right 0.4s ease;
+        }
+        .cart-panel.active { right: 0; }
+
+        /* Admin */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
+            display: none;
+        }
+        .admin-panel.active { display: block; }
+
+        /* Visiteurs */
+        .visitor-widget {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            z-index: 950;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Newsletter */
+        .newsletter-bar {
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            margin: 40px 20px;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hamburger { display: flex; }
+            .smart-desktop { flex-direction: column; }
+            .floating-buttons {
+                bottom: 80px;
+                right: 15px;
+            }
+            .floating-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1rem;
+            }
+            .cart-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div id="globalLoader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="logo">LB-K SMART 2026</div>
+        <button class="hamburger" id="hamburgerMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <!-- Menu déroulant -->
+    <nav class="drawer-menu" id="drawerMenu">
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: var(--secondary); margin-bottom: 15px;">
+                <i class="fas fa-map-marker-alt"></i> Coordonnées
+            </h3>
+            <p>Site Jolie RVA, Manika, Kolwezi</p>
+            <p>WhatsApp: +243 82 293 7321 (Laurent)</p>
+            <p>WhatsApp: +243 97 145 5335 (Betty)</p>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: var(--secondary); margin-bottom: 15px;">
+                <i class="fas fa-box-open"></i> Disponibilité & Commande
+            </h3>
+            <p>Commande sur mesure • Personnalisable</p>
+            <p>Livraison: Petit colis (payant) • Gros colis (>400kg gratuit)</p>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: var(--secondary); margin-bottom: 15px;">
+                <i class="fas fa-dollar-sign"></i> Tarification
+            </h3>
+            <p>✈️ Transport aérien: 28-30$/kg (15-21 jours)</p>
+            <p>⛵ Transport maritime: 500$/CBM, 600$/tonne (70-90 jours)</p>
+            <p style="color: var(--warning); margin-top: 10px;">
+                <i class="fas fa-battery-full"></i> Batteries → transport maritime obligatoire
+            </p>
+        </div>
+    </nav>
+
+    <!-- Barre publicitaire -->
+    <div class="ad-bar">
+        <div class="ad-container" id="adContainer">
+            <!-- Publicités dynamiques -->
+        </div>
+    </div>
+
+    <!-- Bureau intelligent -->
+    <main class="smart-desktop">
+        <!-- Section Catalogue (Commande) -->
+        <section class="desktop-section" id="catalogSection">
+            <div class="section-header">
+                <h2><i class="fas fa-shopping-bag"></i> Catalogue</h2>
+                <span class="badge yellow">Commande 15-21 jours</span>
+            </div>
+            <div class="products-grid" id="catalogGrid">
+                <!-- Produits sur commande -->
+            </div>
+        </section>
+
+        <!-- Section Stock -->
+        <section class="desktop-section" id="stockSection">
+            <div class="section-header">
+                <h2><i class="fas fa-store"></i> Stock Immédiat</h2>
+                <span class="badge green">Disponible maintenant</span>
+            </div>
+            <div class="products-grid" id="stockGrid">
+                <!-- Produits en stock -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Bouton barre des tâches -->
+    <button class="taskbar-toggle" id="taskbarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Barre des tâches -->
+    <div class="taskbar" id="taskbar">
+        <h3 style="text-align: center; margin-bottom: 20px; color: var(--secondary);">
+            <i class="fas fa-th-list"></i> Catalogue Complet LB-K SMART
+        </h3>
+        <div id="taskbarContent">
+            <!-- Tous les produits -->
+        </div>
+    </div>
+
+    <!-- Boutons flottants -->
+    <div class="floating-buttons">
+        <button class="floating-btn whatsapp" onclick="openWhatsApp('general')" title="WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </button>
+        <button class="floating-btn ai" onclick="openAI()" title="Assistant IA">
+            <i class="fas fa-robot"></i>
+        </button>
+        <button class="floating-btn cart" onclick="openCart()" title="Panier">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+        <button class="floating-btn mode" onclick="toggleMode()" title="Changer mode">
+            <i class="fas fa-exchange-alt"></i>
+        </button>
+        <button class="floating-btn admin" onclick="openAdmin()" title="Admin">
+            <i class="fas fa-cog"></i>
+        </button>
+    </div>
+
+    <!-- Panier -->
+    <div class="cart-panel" id="cartPanel">
+        <div style="padding: 20px; height: 100%; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--glass-border);">
+                <h3 style="color: var(--secondary);">
+                    <i class="fas fa-shopping-cart"></i> Votre Panier
+                </h3>
+                <button onclick="closeCart()" style="background: transparent; border: none; color: var(--text); font-size: 1.5rem;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="cartItems" style="flex: 1; overflow-y: auto; margin-bottom: 20px;">
+                <!-- Articles du panier -->
+            </div>
+            <div style="border-top: 1px solid var(--glass-border); padding-top: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 1.2rem;">
+                    <span>Total:</span>
+                    <span id="cartTotal" style="color: var(--secondary); font-weight: bold;">0$</span>
+                </div>
+                <button onclick="checkout()" class="btn whatsapp" style="width: 100%; padding: 15px;">
+                    <i class="fab fa-whatsapp"></i> Commander via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--primary); border-radius: var(--border-radius); padding: 30px; width: 90%; max-width: 500px; border: 2px solid var(--secondary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h3 style="color: var(--secondary);">
+                    <i class="fas fa-user-shield"></i> Administration
+                </h3>
+                <button onclick="closeAdmin()" style="background: transparent; border: none; color: var(--text); font-size: 1.5rem;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="adminLogin">
+                <input type="password" id="adminPassword" placeholder="Mot de passe admin" style="width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); margin-bottom: 20px;">
+                <button onclick="loginAdmin()" class="btn cart" style="width: 100%; padding: 15px;">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+                <p style="color: var(--text-secondary); margin-top: 10px; text-align: center;">
+                    Mot de passe par défaut: <code>admin123</code>
+                </p>
+            </div>
+            
+            <div id="adminDashboard" style="display: none;">
+                <h4 style="color: var(--secondary); margin-bottom: 20px;">Tableau de bord</h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px;">
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 2rem; color: var(--secondary);" id="adminProductCount">0</div>
+                        <div style="font-size: 0.9rem;">Produits</div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 2rem; color: var(--secondary);" id="adminVisitorCount">0</div>
+                        <div style="font-size: 0.9rem;">Visiteurs</div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; gap: 10px;">
+                    <button onclick="manageProducts()" class="btn" style="background: var(--glass); border: 1px solid var(--glass-border);">
+                        <i class="fas fa-boxes"></i> Gérer produits
+                    </button>
+                    <button onclick="manageAds()" class="btn" style="background: var(--glass); border: 1px solid var(--glass-border);">
+                        <i class="fas fa-ad"></i> Gérer publicités
+                    </button>
+                    <button onclick="changePassword()" class="btn" style="background: var(--glass); border: 1px solid var(--glass-border);">
+                        <i class="fas fa-key"></i> Changer mot de passe
+                    </button>
+                    <button onclick="backupData()" class="btn" style="background: var(--glass); border: 1px solid var(--glass-border);">
+                        <i class="fas fa-save"></i> Sauvegarder
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Widget visiteurs -->
+    <div class="visitor-widget">
+        <i class="fas fa-users" style="color: var(--secondary);"></i>
+        <div>
+            <div id="visitorCount" style="font-size: 1.3rem; font-weight: bold; color: var(--secondary);">0</div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);">en ligne</div>
+        </div>
+    </div>
+
+    <!-- Newsletter -->
+    <div class="newsletter-bar">
+        <h3 style="color: white; margin-bottom: 10px;">Restez informé !</h3>
+        <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px;">Recevez nos offres exclusives en avant-première</p>
+        <div style="display: flex; gap: 10px; max-width: 500px; margin: 0 auto;">
+            <input type="email" id="newsletterEmail" placeholder="Votre email" style="flex: 1; padding: 15px; border: none; border-radius: 30px; outline: none;">
+            <button onclick="subscribeNewsletter()" class="btn cart" style="border-radius: 30px; padding: 15px 25px;">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+        <div style="margin-top: 20px; color: white;">
+            <i class="fas fa-users"></i>
+            <span id="subscriberCount">0</span> abonnés
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIGURATION =====
+        const CONFIG = {
+            ADMIN_PASSWORD: 'admin123',
+            WHATSAPP_NUMBERS: {
+                BETTY: '+243971455335',
+                LAURENT: '+243822937321',
+                GENERAL: '+243822937321'
+            }
+        };
+
+        // ===== ÉTAT GLOBAL =====
+        let appState = {
+            cart: [],
+            visitors: [],
+            products: [],
+            isAdmin: false,
+            currentTheme: 'default',
+            currentMode: 'auto'
+        };
+
+        // ===== INITIALISATION =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 LB-K SMART 2026 - Initialisation...');
+            
+            // Cacher le loader
+            setTimeout(() => {
+                document.getElementById('globalLoader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('globalLoader').style.display = 'none';
+                }, 500);
+            }, 1000);
+            
+            // Initialiser les composants
+            initNavigation();
+            initTaskbar();
+            initProducts();
+            initCart();
+            initVisitors();
+            initAds();
+            initNewsletter();
+            
+            console.log('✅ Application initialisée');
+        });
+
+        // ===== NAVIGATION =====
+        function initNavigation() {
+            const hamburger = document.getElementById('hamburgerMenu');
+            const drawer = document.getElementById('drawerMenu');
+            
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                drawer.classList.toggle('active');
+            });
+        }
+
+        // ===== BARRE DES TÂCHES =====
+        function initTaskbar() {
+            const toggle = document.getElementById('taskbarToggle');
+            const taskbar = document.getElementById('taskbar');
+            
+            toggle.addEventListener('click', () => {
+                taskbar.classList.toggle('active');
+                toggle.innerHTML = taskbar.classList.contains('active') ? 
+                    '<i class="fas fa-times"></i>' : 
+                    '<i class="fas fa-bars"></i>';
+            });
+            
+            fillTaskbar();
+        }
+
+        function fillTaskbar() {
+            const taskbarContent = document.getElementById('taskbarContent');
+            taskbarContent.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                    ${appState.products.map(product => `
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                            <div style="font-weight: bold; margin-bottom: 5px;">${product.name}</div>
+                            <div style="color: ${product.stock > 0 ? '#00ff88' : '#ffaa00'}; font-size: 0.9rem; margin-bottom: 10px;">
+                                ${product.stock > 0 ? '✓ En stock' : '⏱️ Sur commande'}
+                            </div>
+                            <div style="color: var(--secondary); font-weight: bold;">${product.price}$</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // ===== PRODUITS =====
+        function initProducts() {
+            // Données de démonstration
+            appState.products = [
+                // Produits Betty
+                { id: 'b1', name: 'Robe soirée', price: 45, category: 'fashion', boutique: 'betty', stock: 5 },
+                { id: 'b2', name: 'Parfum floral', price: 28, category: 'cosmetics', boutique: 'betty', stock: 0 },
+                { id: 'b3', name: 'Sac à main', price: 35, category: 'fashion', boutique: 'betty', stock: 3 },
+                // Produits Laurent
+                { id: 'l1', name: 'Power Bank', price: 35, category: 'electronics', boutique: 'laurent', stock: 8 },
+                { id: 'l2', name: 'Panneau solaire', price: 180, category: 'electronics', boutique: 'laurent', stock: 2 },
+                { id: 'l3', name: 'Kit premiers soins', price: 22, category: 'pharmacy', boutique: 'laurent', stock: 15 }
+            ];
+            
+            // Séparer catalogue/stock
+            separateProducts();
+            
+            // Afficher les produits
+            renderProducts();
+        }
+
+        function separateProducts() {
+            appState.catalogProducts = appState.products.filter(p => p.stock === 0);
+            appState.stockProducts = appState.products.filter(p => p.stock > 0);
+        }
+
+        function renderProducts() {
+            // Catalogue (commande)
+            const catalogGrid = document.getElementById('catalogGrid');
+            catalogGrid.innerHTML = appState.catalogProducts.map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fas fa-box-open fa-3x"></i>
+                    </div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">${product.price}$</div>
+                    <div style="color: var(--warning); margin-bottom: 15px; font-size: 0.9rem;">
+                        <i class="fas fa-clock"></i> Sur commande (15-21 jours)
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn whatsapp" onclick="orderProduct('${product.id}')">
+                            <i class="fab fa-whatsapp"></i> Commander
+                        </button>
+                        <button class="btn cart" onclick="addToCart('${product.id}')">
+                            <i class="fas fa-cart-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Stock (immédiat)
+            const stockGrid = document.getElementById('stockGrid');
+            stockGrid.innerHTML = appState.stockProducts.map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fas fa-bolt fa-3x"></i>
+                    </div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">${product.price}$</div>
+                    <div style="color: var(--success); margin-bottom: 15px; font-size: 0.9rem;">
+                        <i class="fas fa-check-circle"></i> ${product.stock} en stock
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn whatsapp" onclick="orderProduct('${product.id}')">
+                            <i class="fab fa-whatsapp"></i> Commander
+                        </button>
+                        <button class="btn cart" onclick="addToCart('${product.id}')">
+                            <i class="fas fa-cart-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ===== PANIER =====
+        function initCart() {
+            const savedCart = localStorage.getItem('lbk_cart');
+            if (savedCart) {
+                appState.cart = JSON.parse(savedCart);
+                updateCartDisplay();
+            }
+        }
+
+        function addToCart(productId) {
+            const product = appState.products.find(p => p.id === productId);
+            if (!product) return;
+            
+            if (product.stock === 0) {
+                showNotification('Ce produit est sur commande', 'warning');
+                return;
+            }
+            
+            const existingItem = appState.cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                if (existingItem.quantity < product.stock) {
+                    existingItem.quantity += 1;
+                } else {
+                    showNotification('Stock insuffisant', 'error');
+                    return;
+                }
+            } else {
+                appState.cart.push({
+                    ...product,
+                    quantity: 1
+                });
+            }
+            
+            saveCart();
+            updateCartDisplay();
+            showNotification(`${product.name} ajouté au panier`);
+        }
+
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            const cartBadge = document.getElementById('cartBadge');
+            
+            let total = 0;
+            
+            if (appState.cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+                        <i class="fas fa-shopping-cart fa-3x" style="margin-bottom: 20px;"></i>
+                        <p>Votre panier est vide</p>
+                    </div>
+                `;
+            } else {
+                cartItems.innerHTML = appState.cart.map(item => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+                    
+                    return `
+                        <div style="display: flex; align-items: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">${item.name}</div>
+                                <div style="color: var(--secondary);">${item.price}$ × ${item.quantity}</div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <button onclick="updateQuantity('${item.id}', -1)" style="background: var(--secondary); color: var(--primary); border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer;">-</button>
+                                <span>${item.quantity}</span>
+                                <button onclick="updateQuantity('${item.id}', 1)" style="background: var(--secondary); color: var(--primary); border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer;">+</button>
+                                <button onclick="removeFromCart('${item.id}')" style="background: var(--danger); color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            cartTotal.textContent = `${total}$`;
+            
+            const totalItems = appState.cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartBadge.textContent = totalItems;
+            cartBadge.style.display = totalItems > 0 ? 'flex' : 'none';
+        }
+
+        function updateQuantity(productId, change) {
+            const item = appState.cart.find(item => item.id === productId);
+            if (!item) return;
+            
+            const product = appState.products.find(p => p.id === productId);
+            
+            if (change > 0 && item.quantity >= product.stock) {
+                showNotification('Stock insuffisant', 'error');
+                return;
+            }
+            
+            item.quantity += change;
+            
+            if (item.quantity <= 0) {
+                removeFromCart(productId);
+            } else {
+                saveCart();
+                updateCartDisplay();
+            }
+        }
+
+        function removeFromCart(productId) {
+            appState.cart = appState.cart.filter(item => item.id !== productId);
+            saveCart();
+            updateCartDisplay();
+            showNotification('Produit retiré du panier');
+        }
+
+        function saveCart() {
+            localStorage.setItem('lbk_cart', JSON.stringify(appState.cart));
+        }
+
+        function openCart() {
+            document.getElementById('cartPanel').classList.add('active');
+            updateCartDisplay();
+        }
+
+        function closeCart() {
+            document.getElementById('cartPanel').classList.remove('active');
+        }
+
+        function checkout() {
+            if (appState.cart.length === 0) {
+                showNotification('Votre panier est vide', 'error');
+                return;
+            }
+            
+            // Séparer par boutique
+            const bettyItems = appState.cart.filter(item => item.boutique === 'betty');
+            const laurentItems = appState.cart.filter(item => item.boutique === 'laurent');
+            
+            // Construire le message WhatsApp
+            let message = "Bonjour LB-K SMART !%0A%0AJe souhaite commander les produits suivants :%0A%0A";
+            
+            if (bettyItems.length > 0) {
+                message += "*📦 Produits pour Betty :*%0A";
+                bettyItems.forEach(item => {
+                    message += `- ${item.name} (${item.quantity}x) : ${item.price * item.quantity}$%0A`;
+                });
+                message += "%0A";
+            }
+            
+            if (laurentItems.length > 0) {
+                message += "*⚡ Produits pour Laurent :*%0A";
+                laurentItems.forEach(item => {
+                    message += `- ${item.name} (${item.quantity}x) : ${item.price * item.quantity}$%0A`;
+                });
+            }
+            
+            const total = appState.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            message += `%0A*💰 Total : ${total}$*%0A%0A📞 Coordonnées client :%0ANom: [À compléter]%0ATéléphone: [À compléter]%0AAdresse: [À compléter]%0A%0AMerci !`;
+            
+            // Déterminer le numéro WhatsApp
+            let whatsappNumber = CONFIG.WHATSAPP_NUMBERS.GENERAL;
+            if (bettyItems.length > 0 && laurentItems.length === 0) {
+                whatsappNumber = CONFIG.WHATSAPP_NUMBERS.BETTY;
+            } else if (laurentItems.length > 0 && bettyItems.length === 0) {
+                whatsappNumber = CONFIG.WHATSAPP_NUMBERS.LAURENT;
+            }
+            
+            // Ouvrir WhatsApp
+            window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
+            
+            // Vider le panier
+            appState.cart = [];
+            saveCart();
+            updateCartDisplay();
+            closeCart();
+            
+            showNotification('Commande envoyée sur WhatsApp !');
+        }
+
+        // ===== WHATSAPP =====
+        function openWhatsApp(type = 'general') {
+            let number = CONFIG.WHATSAPP_NUMBERS.GENERAL;
+            if (type === 'betty') number = CONFIG.WHATSAPP_NUMBERS.BETTY;
+            if (type === 'laurent') number = CONFIG.WHATSAPP_NUMBERS.LAURENT;
+            
+            const message = encodeURIComponent("Bonjour LB-K SMART ! Je souhaite obtenir des informations.");
+            window.open(`https://wa.me/${number}?text=${message}`, '_blank');
+        }
+
+        function orderProduct(productId) {
+            const product = appState.products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const number = product.boutique === 'betty' ? CONFIG.WHATSAPP_NUMBERS.BETTY : CONFIG.WHATSAPP_NUMBERS.LAURENT;
+            const message = encodeURIComponent(
+                `Bonjour ! Je souhaite commander :%0A%0A` +
+                `Produit: ${product.name}%0A` +
+                `Prix: ${product.price}$%0A` +
+                `Quantité: 1%0A` +
+                `${product.stock > 0 ? 'En stock' : 'Sur commande (15-21 jours)'}%0A%0A` +
+                `📞 Mes coordonnées :%0ANom: [À compléter]%0ATéléphone: [À compléter]%0AAdresse: [À compléter]%0A%0AMerci !`
+            );
+            
+            window.open(`https://wa.me/${number}?text=${message}`, '_blank');
+        }
+
+        // ===== PUBLICITÉS =====
+        function initAds() {
+            const ads = [
+                { title: '💄 Nouvelle collection cosmétiques', price: 'À partir de 25$', boutique: 'betty' },
+                { title: '🔋 Power Bank 20000mAh', price: '35$ seulement', boutique: 'laurent' },
+                { title: '👗 Robes soirée - PROMO', price: '-20% sur sélection', boutique: 'betty' },
+                { title: '☀️ Panneaux solaires', price: '180$', boutique: 'laurent' }
+            ];
+            
+            const container = document.getElementById('adContainer');
+            container.innerHTML = ads.map(ad => `
+                <div style="display: inline-flex; align-items: center; background: rgba(0,0,0,0.5); border-radius: 8px; padding: 10px 20px; margin: 0 15px; min-width: 250px; border: 1px solid var(--glass-border);">
+                    <div style="background: rgba(0,243,255,0.2); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                        <i class="fas ${ad.boutique === 'betty' ? 'fa-crown' : 'fa-bolt'}"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold;">${ad.title}</div>
+                        <div style="color: var(--secondary);">${ad.price}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Dupliquer pour animation continue
+            container.innerHTML += container.innerHTML;
+        }
+
+        // ===== VISITEURS =====
+        function initVisitors() {
+            const saved = localStorage.getItem('lbk_visitors');
+            if (saved) {
+                appState.visitors = JSON.parse(saved);
+            }
+            
+            // Ajouter ce visiteur
+            const visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            appState.visitors.push({
+                id: visitorId,
+                timestamp: Date.now(),
+                lastActive: Date.now()
+            });
+            
+            // Nettoyer les anciens visiteurs (>5 minutes)
+            cleanupVisitors();
+            saveVisitors();
+            updateVisitorCount();
+            
+            // Mettre à jour l'activité
+            setInterval(() => {
+                updateVisitorActivity(visitorId);
+            }, 30000);
+            
+            // Nettoyer périodiquement
+            setInterval(cleanupVisitors, 60000);
+        }
+
+        function updateVisitorActivity(visitorId) {
+            const visitor = appState.visitors.find(v => v.id === visitorId);
+            if (visitor) {
+                visitor.lastActive = Date.now();
+                saveVisitors();
+                updateVisitorCount();
+            }
+        }
+
+        function cleanupVisitors() {
+            const now = Date.now();
+            const FIVE_MINUTES = 5 * 60 * 1000;
+            
+            appState.visitors = appState.visitors.filter(v => now - v.lastActive < FIVE_MINUTES);
+            saveVisitors();
+            updateVisitorCount();
+        }
+
+        function updateVisitorCount() {
+            const countElement = document.getElementById('visitorCount');
+            const adminElement = document.getElementById('adminVisitorCount');
+            
+            const count = appState.visitors.length;
+            
+            if (countElement) {
+                countElement.textContent = count;
+            }
+            if (adminElement) {
+                adminElement.textContent = count;
+            }
+        }
+
+        function saveVisitors() {
+            localStorage.setItem('lbk_visitors', JSON.stringify(appState.visitors));
+        }
+
+        // ===== NEWSLETTER =====
+        function initNewsletter() {
+            const subscribers = JSON.parse(localStorage.getItem('lbk_newsletter')) || [];
+            document.getElementById('subscriberCount').textContent = subscribers.length;
+        }
+
+        function subscribeNewsletter() {
+            const emailInput = document.getElementById('newsletterEmail');
+            const email = emailInput.value.trim();
+            
+            if (!email || !email.includes('@')) {
+                showNotification('Email invalide', 'error');
+                return;
+            }
+            
+            let subscribers = JSON.parse(localStorage.getItem('lbk_newsletter')) || [];
+            
+            if (subscribers.includes(email)) {
+                showNotification('Déjà inscrit', 'warning');
+                return;
+            }
+            
+            subscribers.push(email);
+            localStorage.setItem('lbk_newsletter', JSON.stringify(subscribers));
+            
+            document.getElementById('subscriberCount').textContent = subscribers.length;
+            emailInput.value = '';
+            showNotification('Inscription réussie !');
+        }
+
+        // ===== ADMIN =====
+        function openAdmin() {
+            document.getElementById('adminPanel').classList.add('active');
+        }
+
+        function closeAdmin() {
+            document.getElementById('adminPanel').classList.remove('active');
+            logoutAdmin();
+        }
+
+        function loginAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === CONFIG.ADMIN_PASSWORD) {
+                appState.isAdmin = true;
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+                
+                // Mettre à jour les stats
+                document.getElementById('adminProductCount').textContent = appState.products.length;
+                updateVisitorCount();
+                
+                showNotification('Connexion admin réussie');
+            } else {
+                showNotification('Mot de passe incorrect', 'error');
+            }
+        }
+
+        function logoutAdmin() {
+            appState.isAdmin = false;
+            document.getElementById('adminLogin').style.display = 'block';
+            document.getElementById('adminDashboard').style.display = 'none';
+        }
+
+        function manageProducts() {
+            // Interface de gestion des produits
+            const productManager = `
+                <div style="margin-top: 20px;">
+                    <h4 style="color: var(--secondary); margin-bottom: 20px;">Gestion des Produits</h4>
+                    <button onclick="addProduct()" class="btn" style="background: var(--secondary); color: var(--primary); margin-bottom: 20px;">
+                        <i class="fas fa-plus"></i> Ajouter un produit
+                    </button>
+                    <div id="productList">
+                        ${appState.products.map(product => `
+                            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <strong>${product.name}</strong>
+                                        <div style="color: var(--secondary);">${product.price}$ - Stock: ${product.stock}</div>
+                                    </div>
+                                    <button onclick="editProduct('${product.id}')" style="background: transparent; border: none; color: var(--secondary);">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.querySelector('.admin-content').innerHTML = productManager;
+        }
+
+        function addProduct() {
+            const name = prompt('Nom du produit:');
+            const price = prompt('Prix ($):');
+            const stock = prompt('Quantité en stock (0 = sur commande):');
+            const boutique = prompt('Boutique (betty/laurent):');
+            
+            if (name && price && stock && boutique) {
+                const newProduct = {
+                    id: 'prod_' + Date.now(),
+                    name: name,
+                    price: parseFloat(price),
+                    stock: parseInt(stock),
+                    boutique: boutique,
+                    category: 'general'
+                };
+                
+                appState.products.push(newProduct);
+                separateProducts();
+                renderProducts();
+                fillTaskbar();
+                showNotification('Produit ajouté avec succès');
+            }
+        }
+
+        function manageAds() {
+            showNotification('Gestion des publicités - À implémenter');
+        }
+
+        function changePassword() {
+            const newPassword = prompt('Nouveau mot de passe:');
+            if (newPassword && newPassword.length >= 4) {
+                CONFIG.ADMIN_PASSWORD = newPassword;
+                showNotification('Mot de passe changé avec succès');
+            }
+        }
+
+        function backupData() {
+            const data = {
+                products: appState.products,
+                cart: appState.cart,
+                visitors: appState.visitors,
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lbk-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Sauvegarde créée');
+        }
+
+        // ===== UTILITAIRES =====
+        function showNotification(message, type = 'success') {
+            // Créer une notification
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.background = type === 'error' ? 'var(--danger)' : 'var(--success)';
+            notification.style.color = 'white';
+            notification.style.padding = '15px 20px';
+            notification.style.borderRadius = '8px';
+            notification.style.zIndex = '9999';
+            notification.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+            notification.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}"></i> ${message}`;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function toggleMode() {
+            const isMobile = window.innerWidth < 768;
+            showNotification(isMobile ? 'Mode mobile activé' : 'Mode desktop activé');
+        }
+
+        function openAI() {
+            alert('Assistant IA - À implémenter dans la version complète');
+        }
+
+        // Exposer les fonctions globales
+        window.openWhatsApp = openWhatsApp;
+        window.openCart = openCart;
+        window.closeCart = closeCart;
+        window.addToCart = addToCart;
+        window.updateQuantity = updateQuantity;
+        window.removeFromCart = removeFromCart;
+        window.orderProduct = orderProduct;
+        window.checkout = checkout;
+        window.openAdmin = openAdmin;
+        window.closeAdmin = closeAdmin;
+        window.loginAdmin = loginAdmin;
+        window.manageProducts = manageProducts;
+        window.manageAds = manageAds;
+        window.changePassword = changePassword;
+        window.backupData = backupData;
+        window.toggleMode = toggleMode;
+        window.openAI = openAI;
+        window.subscribeNewsletter = subscribeNewsletter;
+
+        console.log('🌐 LB-K SMART 2026 - Prêt !');
+    </script>
+</body>
+</html>
