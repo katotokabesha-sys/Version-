@@ -1,0 +1,3353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>ROCHE SERVICE – Forage de puits professionnel à Kolwezi</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <!-- SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+    <style>
+        /* Variables par défaut (seront écrasées par localStorage) */
+        :root {
+            --primary: #0b4f6c;
+            --primary-dark: #063145;
+            --accent: #f5b041;
+            --surface: #ffffff;
+            --border: #dde7f0;
+            --shadow: 0 12px 30px -8px rgba(0,40,60,0.15);
+            --bg: #f4f8fd;
+            --text: #1a2e3f;
+            --card-bg: #ffffff;
+            --note-bg: #f1f5f9;
+            --admin-bg: #eef2f6;
+            --font-family: 'Inter', sans-serif;
+            --base-font-size: 16px;
+            --border-radius-card: 30px;
+            --border-radius-btn: 50px;
+            --toast-bg: #10b981;
+            --modal-overlay: rgba(0,0,0,0.6);
+        }
+        body.dark-theme {
+            --primary: #4a9fc5;
+            --primary-dark: #2c7aa0;
+            --accent: #f0b400;
+            --surface: #2d2d2d;
+            --border: #444444;
+            --shadow: 0 12px 30px -8px rgba(0,0,0,0.5);
+            --bg: #1a1a1a;
+            --text: #e0e0e0;
+            --card-bg: #2d2d2d;
+            --note-bg: #3a3a3a;
+            --admin-bg: #3a3a3a;
+            --toast-bg: #0f7b5a;
+            --modal-overlay: rgba(0,0,0,0.8);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-family);
+            font-size: var(--base-font-size);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding-bottom: 90px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px 12px;
+        }
+        @media (min-width: 768px) { .container { max-width: 720px; } }
+        @media (min-width: 1024px) { .container { max-width: 960px; } }
+        
+        /* Admin */
+        .admin-lock {
+            background: var(--note-bg);
+            color: var(--primary-dark);
+            border: 1px solid var(--border);
+            padding: 12px 0;
+            border-radius: var(--border-radius-btn);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            font-size: 0.9rem;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+        }
+        .admin-lock:hover { background: #d4e0e9; transform: scale(1.02); box-shadow: var(--shadow); }
+        .admin-upload {
+            background: var(--admin-bg);
+            border-radius: var(--border-radius-card);
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            border: 2px solid var(--primary);
+            margin-top: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+        }
+        .admin-upload h3 { color: var(--primary-dark); margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .admin-upload input, .admin-upload select, .admin-upload textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--border-radius-btn);
+            border: 1px solid var(--border);
+            margin-bottom: 8px;
+            background: var(--surface);
+            color: var(--text);
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+        .admin-upload input:focus, .admin-upload select:focus, .admin-upload textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(11,79,108,0.2);
+            outline: none;
+        }
+        .admin-upload button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius-btn);
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+        }
+        .admin-upload button:hover { background: var(--primary-dark); transform: scale(1.02); box-shadow: var(--shadow); }
+        .admin-upload .btn-secondary { background: #6c757d; }
+        .admin-upload .danger-btn { background: #dc3545; }
+        .admin-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .slide-checkbox { transform: scale(1.2); margin-right: 10px; }
+        .slides-list, .forfaits-list, .services-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: var(--surface);
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+        .slide-item, .forfait-item, .service-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .slide-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .swiper {
+            width: 100%;
+            height: 500px;
+            border-radius: var(--border-radius-card);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 18px;
+        }
+        .swiper-slide { position: relative; background: #000; }
+        .swiper-slide img, .swiper-slide video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .swiper-slide:hover img { opacity: 0.8; }
+        .slide-infos {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, #000000dd, transparent);
+            color: white;
+            padding: 25px 16px 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .forfait-nom { font-size: 1.8rem; font-weight: 700; margin-bottom: 6px; }
+        .forfait-prix {
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            padding: 5px 16px;
+            border-radius: 40px;
+            display: inline-block;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .forfait-details { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; font-size: 0.95rem; }
+        .forfait-details-item { display: flex; align-items: flex-start; gap: 10px; }
+        .forfait-details-item i { width: 22px; color: var(--accent); margin-top: 2px; }
+        .forfait-details-item span { flex: 1; }
+        .forfait-note {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            font-style: italic;
+            margin-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            padding-top: 8px;
+        }
+        .header-card {
+            background: var(--surface);
+            border-radius: var(--border-radius-card);
+            padding: 22px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .header-card h1 { font-size: 2.2rem; font-weight: 700; color: var(--primary-dark); }
+        .contact-row { display: flex; justify-content: center; gap: 25px; margin-top: 15px; }
+        .contact-row a {
+            text-decoration: none;
+            color: var(--primary-dark);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .direct-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px 0 5px;
+        }
+        .direct-buttons a, .direct-buttons button {
+            flex: 1 0 auto;
+            background: var(--note-bg);
+            color: var(--primary-dark);
+            padding: 12px 8px;
+            border-radius: var(--border-radius-btn);
+            text-align: center;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            min-width: 100px;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .direct-buttons a:hover, .direct-buttons button:hover { background: #d4e0e9; transform: scale(1.02); }
+        .card {
+            background: var(--surface);
+            border-radius: var(--border-radius-card);
+            padding: 22px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: box-shadow 0.3s;
+        }
+        .card:hover { box-shadow: 0 15px 35px -8px rgba(0,40,60,0.2); }
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .forfait-block {
+            background: var(--note-bg);
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border-left: 5px solid var(--primary);
+            transition: transform 0.2s;
+        }
+        .forfait-block:hover { transform: translateX(5px); }
+        .forfait-titre { font-size: 1.3rem; font-weight: 700; display: flex; justify-content: space-between; }
+        .forfait-tarif {
+            background: var(--accent);
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            color: #000;
+        }
+        .forfait-liste { list-style: none; margin: 12px 0; }
+        .forfait-liste li { margin: 8px 0; display: flex; align-items: center; gap: 8px; }
+        .ok { color: #10b981; font-weight:700; }
+        .nok { color: #ef4444; font-weight:700; }
+        .note {
+            font-size:0.85rem;
+            background: var(--note-bg);
+            padding:12px;
+            border-radius:20px;
+            margin-top:10px;
+        }
+        .wa-action {
+            background: #25D366;
+            color: white;
+            padding: 16px;
+            border-radius: var(--border-radius-btn);
+            text-align: center;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .wa-action:hover { background: #128C7E; transform: scale(1.02); }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(var(--surface-rgb), 0.9);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 20px;
+            border-radius: var(--border-radius-card) var(--border-radius-card) 0 0;
+            z-index: 100;
+        }
+        .bottom-nav a {
+            text-align: center;
+            color: #5a6b7a;
+            font-size: 0.7rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .bottom-nav a i { font-size:1.5rem; }
+        .bottom-nav a.active { color: var(--primary); font-weight:700; }
+        .floating-ai {
+            position: fixed;
+            bottom: 100px;
+            right: 16px;
+            width: 72px;
+            height: 72px;
+            border-radius: 36px;
+            background: linear-gradient(145deg, var(--primary-dark), #0a3b4f);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3), 0 0 0 4px rgba(245,176,65,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid var(--accent);
+            z-index: 99;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(245,176,65,0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(245,176,65,0); }
+            100% { box-shadow: 0 0 0 0 rgba(245,176,65,0); }
+        }
+        .floating-ai:hover { transform: scale(1.1); }
+        .floating-ai img { width: 60%; height: 60%; object-fit: contain; filter: brightness(0) invert(1); }
+        .ai-menu {
+            position: fixed;
+            bottom: 190px;
+            right: 16px;
+            width: 260px;
+            background: var(--surface);
+            border-radius: var(--border-radius-card);
+            box-shadow: 0 30px 50px rgba(0,0,0,0.4);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 200;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+        .ai-menu-item {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            transition: background 0.2s, padding-left 0.2s;
+            color: var(--text);
+        }
+        .ai-menu-item:hover { background: var(--note-bg); padding-left: 20px; }
+        .ai-menu-item:last-child { border-bottom: none; }
+        .ai-menu-item i { width: 24px; color: var(--primary); }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--modal-overlay);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            z-index: 2500;
+        }
+        .popup-menu {
+            background: var(--surface);
+            width: 88%;
+            max-width: 600px;
+            border-radius: var(--border-radius-card);
+            padding: 25px;
+            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--text);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        @keyframes popUp {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .menu-opt {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--note-bg);
+            padding: 16px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .menu-opt:hover { background: #d4e0e9; }
+        .close-popup {
+            width:100%;
+            margin-top:10px;
+            background:none;
+            border:none;
+            color:#ef4444;
+            font-weight:700;
+            cursor:pointer;
+            padding:12px;
+        }
+        .client-responsibility {
+            background: var(--note-bg);
+            border-radius: 20px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+        .toast {
+            background: var(--toast-bg);
+            color:white;
+            padding:16px;
+            border-radius:var(--border-radius-btn);
+            margin-bottom:16px;
+            display:none;
+            text-align:center;
+            font-weight:600;
+            animation: fadeInOut 4s forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+        .btn {
+            background: var(--primary);
+            color: white;
+            padding: 16px;
+            border-radius: var(--border-radius-btn);
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn:hover { background: var(--primary-dark); transform: scale(1.02); }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        .btn-info { background: #17a2b8; }
+        .btn-info:hover { background: #138496; }
+        #forfaitInfo {
+            font-weight: 600;
+            color: var(--primary-dark);
+            background: var(--note-bg);
+            padding: 10px;
+            border-radius: var(--border-radius-btn);
+            margin-bottom: 12px;
+        }
+        .devis-section {
+            background: var(--note-bg);
+            border-radius: var(--border-radius-card);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 12px 0;
+            font-size: 0.9rem;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0 10px;
+            font-size: 0.8rem;
+        }
+        .footer-links a {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+        .footer-links a:hover { text-decoration: underline; }
+        .testimonial {
+            background: var(--note-bg);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        .testimonial-author {
+            font-weight: 700;
+            margin-top: 8px;
+            color: var(--primary);
+        }
+        .warning-note {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+        .admin-testimonials-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: var(--surface);
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+        .testimonial-item, .forfait-edit-item, .service-edit-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .history-table th {
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            border-radius: 10px 10px 0 0;
+        }
+        .history-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .history-table tr:hover { background: var(--note-bg); }
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .admin-tab {
+            flex: 1;
+            padding: 12px;
+            border-radius: var(--border-radius-btn);
+            background: var(--note-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .admin-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        .admin-tab:hover { transform: scale(1.02); }
+        .admin-section {
+            display: none;
+        }
+        .admin-section.active {
+            display: block;
+        }
+        .admin-subtab {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .admin-subtab button {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: var(--border-radius-btn);
+            background: var(--note-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .admin-subtab button.active {
+            background: var(--primary);
+            color: white;
+        }
+        .forfait-edit-box {
+            display: none;
+        }
+        .forfait-edit-box.active {
+            display: block;
+        }
+        .ai-item-edit {
+            background: var(--note-bg);
+            padding: 15px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+        }
+        .contract-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            margin: 10px 0;
+            display: none;
+        }
+        .welcome-message {
+            background: var(--accent);
+            color: #000;
+            text-align: center;
+            padding: 12px;
+            border-radius: var(--border-radius-btn);
+            margin-bottom: 15px;
+            font-weight: 600;
+            animation: slideDown 0.5s ease-out, fadeOut 1s 4s forwards;
+            box-shadow: var(--shadow);
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+        .smart-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--modal-overlay);
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            backdrop-filter: blur(4px);
+        }
+        .smart-modal-content {
+            background: var(--surface);
+            border-radius: var(--border-radius-card);
+            padding: 25px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: popUp 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .smart-modal-title {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .smart-modal-body {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .smart-modal-close {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius-btn);
+            cursor: pointer;
+            font-weight: 600;
+            float: right;
+        }
+        .admin-code-modal {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .admin-code-input {
+            padding: 15px;
+            border-radius: var(--border-radius-btn);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 1.2rem;
+            width: 100%;
+        }
+        .admin-code-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        /* Styles améliorés pour le guide IA */
+        .tour-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 5000;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+        .tour-highlight {
+            position: relative;
+            z-index: 5001;
+            box-shadow: 0 0 0 4px var(--accent), 0 0 0 8px rgba(245,176,65,0.3), 0 0 30px rgba(0,0,0,0.5);
+            border-radius: 12px;
+            transition: box-shadow 0.3s ease;
+            pointer-events: auto;
+            animation: pulse-highlight 2s infinite;
+        }
+        @keyframes pulse-highlight {
+            0% { box-shadow: 0 0 0 4px var(--accent), 0 0 0 8px rgba(245,176,65,0.3); }
+            70% { box-shadow: 0 0 0 4px var(--accent), 0 0 0 12px rgba(245,176,65,0.1); }
+            100% { box-shadow: 0 0 0 4px var(--accent), 0 0 0 8px rgba(245,176,65,0.3); }
+        }
+        .tour-tooltip {
+            position: absolute;
+            background: var(--surface);
+            color: var(--text);
+            border-radius: 24px;
+            padding: 20px;
+            max-width: 340px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 2px var(--accent);
+            border: none;
+            z-index: 5002;
+            pointer-events: auto;
+            transition: opacity 0.2s, transform 0.2s;
+            animation: tooltip-appear 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        @keyframes tooltip-appear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .tour-tooltip .arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+        }
+        .tour-tooltip .arrow.top {
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 12px 12px 12px;
+            border-color: transparent transparent var(--surface) transparent;
+        }
+        .tour-tooltip .arrow.bottom {
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 12px 12px 0 12px;
+            border-color: var(--surface) transparent transparent transparent;
+        }
+        .tour-tooltip .arrow.left {
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 12px 12px 12px 0;
+            border-color: transparent var(--surface) transparent transparent;
+        }
+        .tour-tooltip .arrow.right {
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 12px 0 12px 12px;
+            border-color: transparent transparent transparent var(--surface);
+        }
+        .tour-tooltip h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tour-tooltip h3 i {
+            color: var(--accent);
+        }
+        .tour-tooltip p {
+            margin-bottom: 16px;
+        }
+        .tour-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            gap: 8px;
+        }
+        .tour-buttons button {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 40px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--primary);
+            color: white;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .tour-buttons button:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: scale(1.02);
+        }
+        .tour-buttons button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .tour-buttons button.secondary {
+            background: var(--note-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .tour-buttons button.secondary:hover:not(:disabled) {
+            background: #d4e0e9;
+        }
+        .tour-buttons button.tour-skip {
+            background: transparent;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+        .tour-buttons button.tour-skip:hover {
+            background: #ef4444;
+            color: white;
+        }
+        .section-order-item {
+            padding: 12px;
+            background: var(--note-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            margin-bottom: 8px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-order-item i {
+            color: var(--primary);
+        }
+        .section-order-item.dragging {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <!-- Message de bienvenue -->
+        <div id="welcomeMessageContainer"></div>
+
+        <!-- EN-TÊTE CONTACTS -->
+        <div class="header-card">
+            <h1>ROCHE SERVICE <small style="display:block; font-size:1rem; color:var(--primary);">L'eau, c'est la vie</small></h1>
+            <div class="contact-row">
+                <a id="callGlobal" aria-label="Appeler"><i class="fas fa-phone-alt"></i> Appel</a>
+                <a id="waGlobal" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+            </div>
+            <div class="direct-buttons" id="directButtons">
+                <!-- Les boutons directs sont générés dynamiquement -->
+            </div>
+            <button class="admin-lock" id="unlockAdmin" aria-label="Ouvrir panneau admin"><i class="fas fa-lock"></i> Admin</button>
+        </div>
+
+        <!-- PANNAU ADMIN COMPLET -->
+        <div class="admin-upload" id="adminUpload">
+            <h3><i class="fas fa-cog"></i> Administration complète</h3>
+            <div class="warning-note">
+                <i class="fas fa-exclamation-triangle"></i> Toutes les modifications sont sauvegardées localement.
+            </div>
+            
+            <!-- Onglets admin -->
+            <div class="admin-tabs">
+                <div class="admin-tab active" data-tab="slides">📸 Slides</div>
+                <div class="admin-tab" data-tab="forfaits">📦 Forfaits</div>
+                <div class="admin-tab" data-tab="services">🔧 Services</div>
+                <div class="admin-tab" data-tab="ia">🤖 Gestion IA</div>
+                <div class="admin-tab" data-tab="guide">👋 Guide IA</div>
+                <div class="admin-tab" data-tab="accueil">👋 Accueil</div>
+                <div class="admin-tab" data-tab="contacts">📞 Contacts</div>
+                <div class="admin-tab" data-tab="contrat">🖼️ Contrat</div>
+                <div class="admin-tab" data-tab="design">🎨 Personnalisation</div>
+                <div class="admin-tab" data-tab="ordre">📋 Ordre des sections</div>
+                <div class="admin-tab" data-tab="historique">📜 Historique</div>
+                <div class="admin-tab" data-tab="password">🔑 Mot de passe</div>
+            </div>
+
+            <!-- Section Slides -->
+            <div id="admin-slides" class="admin-section active">
+                <h4>⏱️ Vitesse du carrousel</h4>
+                <input type="number" id="autoplaySpeed" min="1" max="20" value="6" step="0.5">
+                <div class="admin-help">Secondes entre chaque slide</div>
+                
+                <h4>🗂️ Slides actuels</h4>
+                <div id="slidesList" class="slides-list"></div>
+                <div class="admin-row">
+                    <button id="deleteSelectedBtn" class="danger-btn"><i class="fas fa-trash"></i> Supprimer sélection</button>
+                    <button id="deleteAllSlidesBtn" class="danger-btn"><i class="fas fa-trash"></i> Tout supprimer</button>
+                </div>
+
+                <h4>➕ Ajouter un slide</h4>
+                <input type="text" id="newTitle" placeholder="Titre du forfait" value="Nouveau forage">
+                <input type="text" id="newPrice" placeholder="Prix (ex: 2500$)" value="Consultez nous">
+                <input type="text" id="newProfondeur" placeholder="Profondeur (ex: 40-50 m)">
+                <input type="text" id="newInclus" placeholder="Inclus (séparés par des virgules)" value="Aucun">
+                <input type="text" id="newClient" placeholder="Client fournit (virgules)" value="PVC, gravier">
+                <input type="text" id="newNote" placeholder="Note (optionnel)">
+                <input type="file" id="newImageFile" accept="image/*">
+                <button id="addSlideBtn"><i class="fas fa-plus"></i> Ajouter ce slide</button>
+            </div>
+
+            <!-- Section Forfaits -->
+            <div id="admin-forfaits" class="admin-section">
+                <h4>✏️ Modifier les forfaits</h4>
+                <div class="admin-subtab">
+                    <button class="forfait-subtab active" data-forfait="standard1">Standard 1</button>
+                    <button class="forfait-subtab" data-forfait="standard2">Standard 2</button>
+                    <button class="forfait-subtab" data-forfait="moyen">Moyen</button>
+                    <button class="forfait-subtab" data-forfait="profond">Profond</button>
+                </div>
+                <div id="forfaitsEditList"></div>
+                <button id="saveForfaitsBtn" class="btn-success"><i class="fas fa-save"></i> Sauvegarder modifications</button>
+            </div>
+
+            <!-- Section Services -->
+            <div id="admin-services" class="admin-section">
+                <h4>🔧 Services complémentaires</h4>
+                <div id="servicesEditList"></div>
+                <div class="admin-row">
+                    <input type="text" id="newServiceName" placeholder="Nom du service">
+                    <input type="number" id="newServicePrice" placeholder="Prix">
+                    <button id="addServiceBtn" class="btn-success"><i class="fas fa-plus"></i> Ajouter</button>
+                </div>
+                <button id="deleteAllServicesBtn" class="danger-btn"><i class="fas fa-trash"></i> Tout supprimer</button>
+            </div>
+
+            <!-- Section Gestion IA (menu et apparence du bouton) -->
+            <div id="admin-ia" class="admin-section">
+                <h4>🤖 Activer le bouton IA</h4>
+                <label>
+                    <input type="checkbox" id="aiEnabled" checked> Activer le bouton flottant
+                </label>
+                <h4>Icône du bouton (URL)</h4>
+                <input type="text" id="aiIconUrl" value="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" placeholder="URL de l'icône">
+                <h4>Couleurs du dégradé</h4>
+                <label>Couleur 1</label>
+                <input type="color" id="aiColor1" value="#0b4f6c">
+                <label>Couleur 2</label>
+                <input type="color" id="aiColor2" value="#0a3b4f">
+                <h4>Éléments du menu IA</h4>
+                <div id="iaItemsList"></div>
+                <button id="addIaItemBtn" class="btn-success"><i class="fas fa-plus"></i> Ajouter un élément</button>
+                <button id="saveIaItemsBtn" class="btn-success"><i class="fas fa-save"></i> Sauvegarder</button>
+                <div class="admin-help">Laissez "action" vide pour un lien direct, ou utilisez "suggestForfait()", "compareForfaits()", "openMenu('whatsapp')", "startTour()" pour le guide.</div>
+            </div>
+
+            <!-- Section Guide IA (étapes) -->
+            <div id="admin-guide" class="admin-section">
+                <h4>👋 Personnaliser le guide interactif</h4>
+                <p>Définissez les étapes du guide qui apparaît à la première visite. Chaque étape peut cibler un élément de la page.</p>
+                <div id="guideStepsList"></div>
+                <button id="addGuideStepBtn" class="btn-success"><i class="fas fa-plus"></i> Ajouter une étape</button>
+                <button id="saveGuideStepsBtn" class="btn-success"><i class="fas fa-save"></i> Sauvegarder le guide</button>
+                <hr>
+                <button id="resetFirstVisitBtn" class="btn-secondary"><i class="fas fa-undo"></i> Réinitialiser la première visite (pour test)</button>
+                <div class="admin-help">Ceci efface le marqueur pour que le guide s'affiche automatiquement au prochain chargement.</div>
+            </div>
+
+            <!-- Section Accueil -->
+            <div id="admin-accueil" class="admin-section">
+                <h4>👋 Message de bienvenue</h4>
+                <label>
+                    <input type="checkbox" id="welcomeEnabled"> Activer le message de bienvenue
+                </label>
+                <label>Texte du message</label>
+                <input type="text" id="welcomeText" value="Bienvenue sur le site officiel ROCHE SERVICE, créé par le fondateur LBK">
+                <label>Délai avant disparition (secondes)</label>
+                <input type="number" id="welcomeDelay" min="1" max="20" value="5" step="0.5">
+                <button id="saveWelcomeBtn" class="btn-success"><i class="fas fa-save"></i> Sauvegarder</button>
+            </div>
+
+            <!-- Section Contacts -->
+            <div id="admin-contacts" class="admin-section">
+                <h4>📞 Modifier les numéros de contact</h4>
+                <label>Finance WhatsApp</label>
+                <input type="text" id="contactFinance" placeholder="ex: 243990631496" value="243990631496">
+                <label>Marketing WhatsApp</label>
+                <input type="text" id="contactMarketing" placeholder="ex: 243992622340" value="243992622340">
+                <label>Support WhatsApp</label>
+                <input type="text" id="contactSupport" placeholder="ex: 243973813369" value="243973813369">
+                <button id="saveContactsBtn" class="btn-success"><i class="fas fa-save"></i> Sauvegarder les numéros</button>
+                <div class="admin-help">Les liens dans l'en-tête et les popups seront automatiquement mis à jour.</div>
+            </div>
+
+            <!-- Section Contrat (avec réglage du temps d'appui et limite de téléchargements) -->
+            <div id="admin-contrat" class="admin-section">
+                <h4>🖼️ Image du contrat (téléchargeable par appui long)</h4>
+                <p>Choisissez une image (PNG ou JPEG) qui sera proposée au téléchargement lors d'un appui long sur le titre "Nos forfaits réels".</p>
+                <input type="file" id="contractImageUpload" accept="image/png, image/jpeg">
+                <button id="uploadContractBtn" class="btn-success"><i class="fas fa-upload"></i> Téléverser l'image</button>
+                <button id="deleteContractBtn" class="danger-btn"><i class="fas fa-trash"></i> Supprimer l'image</button>
+                <div id="contractPreviewContainer">
+                    <img id="contractPreview" class="contract-preview" src="#" alt="Aperçu du contrat">
+                </div>
+
+                <h4>⏱️ Délai d'appui long (ms) pour télécharger l'image</h4>
+                <input type="number" id="contractLongPressDelay" min="200" max="3000" value="600" step="50">
+                <button id="saveContractDelayBtn" class="btn-success"><i class="fas fa-save"></i> Sauvegarder le délai</button>
+
+                <h4>🔒 Limitation des téléchargements (par session)</h4>
+                <label>
+                    <input type="checkbox" id="enableDownloadLimit"> Activer la limite
+                </label>
+                <label>Nombre maximum de téléchargements autorisés par session</label>
+                <input type="number" id="downloadLimit" min="1" max="50" value="5">
+                <button id="saveDownloadLimitBtn" class="btn-success"><i class="fas fa-save"></i> Sauvegarder la limite</button>
+                <div id="downloadCounterDisplay" style="margin-top:10px; font-weight:600;"></div>
+            </div>
+
+            <!-- Section Personnalisation (couleurs, polices, rayons) -->
+            <div id="admin-design" class="admin-section">
+                <h4>🎨 Personnalisation de l'apparence</h4>
+                <label>Couleur primaire</label>
+                <input type="color" id="colorPrimary" value="#0b4f6c">
+                <label>Couleur primaire sombre</label>
+                <input type="color" id="colorPrimaryDark" value="#063145">
+                <label>Couleur accent</label>
+                <input type="color" id="colorAccent" value="#f5b041">
+                <label>Couleur de fond</label>
+                <input type="color" id="colorBg" value="#f4f8fd">
+                <label>Couleur du texte</label>
+                <input type="color" id="colorText" value="#1a2e3f">
+                <label>Police (ex: 'Inter', sans-serif)</label>
+                <input type="text" id="fontFamily" value="'Inter', sans-serif">
+                <label>Taille de base (px)</label>
+                <input type="number" id="baseFontSize" value="16" min="12" max="24">
+                <label>Rayon des cartes (px)</label>
+                <input type="number" id="borderRadiusCard" value="30" min="0" max="50">
+                <label>Rayon des boutons (px)</label>
+                <input type="number" id="borderRadiusBtn" value="50" min="0" max="50">
+                <button id="applyDesignBtn" class="btn-success"><i class="fas fa-check"></i> Appliquer</button>
+                <button id="resetDesignBtn" class="btn-secondary"><i class="fas fa-undo"></i> Réinitialiser</button>
+            </div>
+
+            <!-- Section Ordre des sections (drag & drop) -->
+            <div id="admin-ordre" class="admin-section">
+                <h4>📋 Réorganiser l'affichage des sections</h4>
+                <p>Glissez-déposez les éléments pour modifier l'ordre d'apparition sur la page.</p>
+                <div id="sectionOrderList" class="section-order-list"></div>
+                <button id="saveSectionOrderBtn" class="btn-success"><i class="fas fa-save"></i> Sauvegarder l'ordre</button>
+            </div>
+
+            <!-- Section Historique -->
+            <div id="admin-historique" class="admin-section">
+                <h4>📋 Historique des commandes</h4>
+                <div id="testimonialsList" class="admin-testimonials-list"></div>
+                <button id="deleteAllTestimonialsBtn" class="danger-btn"><i class="fas fa-trash"></i> Tout supprimer</button>
+            </div>
+
+            <!-- Section Mot de passe -->
+            <div id="admin-password" class="admin-section">
+                <h4>🔐 Changer le mot de passe admin</h4>
+                <input type="password" id="newPassword" placeholder="Nouveau mot de passe">
+                <input type="password" id="confirmPassword" placeholder="Confirmer">
+                <button id="changePasswordBtn" class="btn-secondary"><i class="fas fa-key"></i> Changer</button>
+            </div>
+
+            <button id="closeAdminBtn" class="btn-secondary"><i class="fas fa-arrow-left"></i> Fermer l'admin</button>
+        </div>
+
+        <!-- Les sections suivantes seront réorganisées dynamiquement -->
+        <div id="sectionsContainer">
+            <!-- CARROUSEL -->
+            <div class="swiper mySwiper" data-section="carousel">
+                <div class="swiper-wrapper" id="carouselWrapper"></div>
+                <div class="swiper-pagination"></div>
+            </div>
+
+            <!-- FORFAITS DÉTAILLÉS -->
+            <div class="card" id="forfaitsContainer" data-section="forfaits">
+                <div class="card-title" id="forfaitsTitle"><i class="fas fa-bolt"></i> Nos forfaits réels</div>
+                <!-- Les forfaits seront injectés ici -->
+            </div>
+
+            <!-- DEVIS FORAGE -->
+            <div class="card" id="devisForage" data-section="devisForage">
+                <div class="card-title"><i class="fas fa-file-signature"></i> Devis forage</div>
+                <div class="devis-section">
+                    <input type="text" id="clientNameForage" placeholder="Nom complet *" style="width:100%; padding:16px; margin-bottom:12px; border-radius:50px; border:1px solid var(--border);">
+                    <input type="text" id="clientCityForage" placeholder="Ville *" style="width:100%; padding:16px; margin-bottom:12px; border-radius:50px;" value="Kolwezi">
+                    <input type="tel" id="clientPhoneForage" placeholder="Téléphone *" style="width:100%; padding:16px; margin-bottom:12px; border-radius:50px;">
+                    <input type="text" id="chantierAdresseForage" placeholder="Adresse chantier *" style="width:100%; padding:16px; margin-bottom:12px; border-radius:50px;">
+                    
+                    <input type="number" id="profondeurForage" placeholder="Profondeur estimée (m) *" min="40" max="130" style="width:100%; padding:16px; margin-bottom:12px; border-radius:50px;">
+
+                    <div id="forfaitInfoForage" style="background:var(--note-bg); padding:12px; border-radius:30px; margin-bottom:12px; text-align:center;">
+                        <span id="forfaitChoisiForage">-</span>
+                    </div>
+
+                    <div id="devisResultForage" style="background:var(--primary); color:white; padding:20px; border-radius:30px; margin:20px 0;">
+                        <p><strong>Roche Service fournit :</strong> <span id="rochePartForage">-</span></p>
+                        <p><strong>À la charge du client :</strong> <span id="clientPartForage">-</span></p>
+                        <p><strong>Total à payer à ROCHE :</strong> <span id="totalRocheForage">0</span> USD</p>
+                    </div>
+
+                    <div class="client-responsibility" id="clientResponsibilityForage"></div>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="acceptTermsForage"> J'accepte la <a href="#" onclick="showModal('Mentions légales', 'ROCHE SERVICE SARL, Kolwezi, RCCM XYZ.')">politique de confidentialité</a>.
+                    </label>
+
+                    <button class="btn btn-success" id="confirmForageBtn"><i class="fas fa-check-circle"></i> Confirmer et envoyer le devis</button>
+                    <button class="btn" id="printForageBtn"><i class="fas fa-print"></i> Imprimer le contrat</button>
+                    <button class="btn btn-info" id="pdfForageBtn"><i class="fas fa-file-pdf"></i> Télécharger le contrat (PDF)</button>
+                </div>
+            </div>
+
+            <!-- DEVIS SERVICES -->
+            <div class="card" id="devisServices" data-section="devisServices">
+                <div class="card-title"><i class="fas fa-tools"></i> Devis services sur mesure</div>
+                <div class="devis-section">
+                    <input type="text" id="clientNameServices" placeholder="Nom complet *" style="width:100%; padding:16px; margin-bottom:12px; border-radius:50px; border:1px solid var(--border);">
+                    <input type="text" id="clientCityServices" placeholder="Ville *" style="width:100%; padding:16px; margin-bottom:12px; border-radius:50px;" value="Kolwezi">
+                    <input type="tel" id="clientPhoneServices" placeholder="Téléphone *" style="width:100%; padding:16px; margin-bottom:12px; border-radius:50px;">
+                    <input type="text" id="chantierAdresseServices" placeholder="Adresse chantier *" style="width:100%; padding:16px; margin-bottom:12px; border-radius:50px;">
+
+                    <div id="servicesCheckboxes" style="background:var(--note-bg); padding:16px; border-radius:30px; margin:15px 0;">
+                        <p><strong>Services disponibles :</strong></p>
+                        <!-- Checkboxes générées dynamiquement -->
+                    </div>
+
+                    <div id="devisResultServices" style="background:var(--primary); color:white; padding:20px; border-radius:30px; margin:20px 0;">
+                        <p><strong>Services sélectionnés :</strong> <span id="servicesList">-</span></p>
+                        <p><strong>Total à payer :</strong> <span id="totalServices">0</span> USD</p>
+                    </div>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="acceptTermsServices"> J'accepte la <a href="#" onclick="showModal('Mentions légales', 'ROCHE SERVICE SARL, Kolwezi, RCCM XYZ.')">politique de confidentialité</a>.
+                    </label>
+
+                    <button class="btn btn-success" id="confirmServicesBtn"><i class="fas fa-check-circle"></i> Confirmer et envoyer le devis</button>
+                    <button class="btn" id="printServicesBtn"><i class="fas fa-print"></i> Imprimer le contrat</button>
+                    <button class="btn btn-info" id="pdfServicesBtn"><i class="fas fa-file-pdf"></i> Télécharger le contrat (PDF)</button>
+                </div>
+            </div>
+
+            <!-- SERVICES COMPLÉMENTAIRES -->
+            <div class="card" id="servicesComplementaires" data-section="servicesComplementaires">
+                <div class="card-title"><i class="fas fa-tools"></i> Services complémentaires</div>
+                <div id="servicesDisplay"></div>
+            </div>
+
+            <!-- BOUTON HISTORIQUE -->
+            <div class="card" data-section="historique">
+                <div class="card-title"><i class="fas fa-history"></i> Ils nous ont fait confiance</div>
+                <button class="btn btn-info" id="showHistoryBtn"><i class="fas fa-users"></i> Voir l'historique des commandes</button>
+            </div>
+
+            <!-- GARANTIES -->
+            <div class="card" data-section="garanties">
+                <div class="card-title"><i class="fas fa-shield-alt"></i> Garanties</div>
+                <ul style="list-style:none;">
+                    <li><span class="ok">✓</span> Forage + installation : 12 mois</li>
+                    <li><span class="ok">✓</span> Pompe (pièces) : 2 mois</li>
+                    <li><span class="ok">✓</span> Assistance technique gratuite : 30 jours</li>
+                </ul>
+            </div>
+
+            <!-- CONTACT WHATSAPP -->
+            <div class="card" data-section="contact">
+                <div class="card-title"><i class="fab fa-whatsapp"></i> Contactez-nous</div>
+                <button class="wa-action" onclick="openMenu('whatsapp')"><i class="fab fa-whatsapp"></i> WhatsApp – Choisir un service</button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer-links">
+            <a href="#" onclick="showModal('Mentions légales', 'ROCHE SERVICE SARL, Kolwezi, RCCM XYZ.')">Mentions légales</a>
+            <a href="#" onclick="showModal('Politique de confidentialité', 'Vos données sont utilisées uniquement pour vos demandes.')">Politique de confidentialité</a>
+        </div>
+
+        <!-- TOAST -->
+        <div id="confirmationMessage" class="toast"></div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+        <a id="homeBtn" class="active" aria-label="Accueil"><i class="fas fa-home"></i><span>Accueil</span></a>
+        <a id="devisBtn" aria-label="Devis"><i class="fas fa-file-invoice"></i><span>Devis</span></a>
+        <a id="waBtn" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
+        <a id="themeBtn" aria-label="Changer de thème"><i class="fas fa-sun"></i><span>Thème</span></a>
+        <a id="callBtn" aria-label="Appel"><i class="fas fa-phone-alt"></i><span>Appel</span></a>
+    </div>
+
+    <!-- IA FLOTTANTE -->
+    <div class="floating-ai" id="aiButton" aria-label="Assistant intelligent">
+        <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" alt="IA">
+    </div>
+    <div class="ai-menu" id="aiMenu"></div>
+
+    <!-- MODALE HISTORIQUE -->
+    <div id="historyOverlay" class="overlay" onclick="closeHistoryModal(event)">
+        <div class="popup-menu">
+            <h3 style="margin-bottom:20px; text-align:center; color:var(--primary-dark);">Historique des commandes</h3>
+            <div id="historyContent" style="max-height:60vh; overflow-y:auto;"></div>
+            <button class="close-popup" onclick="closeHistoryModal(null)">Fermer</button>
+        </div>
+    </div>
+
+    <!-- MODALE FORMULAIRE VIERGE -->
+    <div id="blankContractOverlay" class="overlay" onclick="closeBlankContractModal(event)">
+        <div class="popup-menu">
+            <h3 style="margin-bottom:20px; text-align:center; color:var(--primary-dark);">Formulaire d'engagement</h3>
+            <div style="background:var(--note-bg); padding:20px; border-radius:20px; margin-bottom:20px;">
+                <button class="btn btn-success" id="printBlankFormBtn"><i class="fas fa-print"></i> Imprimer le formulaire vierge</button>
+                <button class="btn btn-info" id="pdfBlankFormBtn"><i class="fas fa-file-pdf"></i> Télécharger en PDF</button>
+            </div>
+            <button class="close-popup" onclick="closeBlankContractModal(null)">Fermer</button>
+        </div>
+    </div>
+
+    <!-- POPUP CONTACT -->
+    <div id="contactOverlay" class="overlay" onclick="closePopup(event)">
+        <div class="popup-menu">
+            <h3 id="popTitle" style="margin-bottom: 20px; text-align: center; color: var(--primary-dark);"></h3>
+            <div id="popOptions"></div>
+            <button class="close-popup" onclick="closePopup(null)">Annuler</button>
+        </div>
+    </div>
+
+    <!-- MODALE SMART -->
+    <div id="smartModal" class="smart-modal" onclick="closeSmartModal(event)">
+        <div class="smart-modal-content" onclick="event.stopPropagation()">
+            <div class="smart-modal-title" id="smartModalTitle">
+                <i class="fas fa-info-circle"></i> Information
+            </div>
+            <div class="smart-modal-body" id="smartModalBody">
+                <!-- Contenu -->
+            </div>
+            <button class="smart-modal-close" onclick="closeSmartModal()">Fermer</button>
+        </div>
+    </div>
+
+    <!-- MODALE CODE ADMIN -->
+    <div id="adminCodeModal" class="smart-modal" onclick="if(event.target===this) closeAdminCodeModal()">
+        <div class="smart-modal-content" onclick="event.stopPropagation()">
+            <div class="smart-modal-title">
+                <i class="fas fa-lock"></i> Authentification administrateur
+            </div>
+            <div class="admin-code-modal">
+                <input type="password" id="adminCodeInput" class="admin-code-input" placeholder="Entrez le code admin" autocomplete="off">
+                <div class="admin-code-buttons">
+                    <button class="btn btn-secondary" onclick="closeAdminCodeModal()">Annuler</button>
+                    <button class="btn btn-success" onclick="submitAdminCode()">Valider</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOUR INTERACTIF (amélioré) -->
+    <div id="tourOverlay" class="tour-overlay">
+        <div id="tourTooltip" class="tour-tooltip">
+            <div class="arrow" id="tourArrow"></div>
+            <h3 id="tourTitle"><i class="fas fa-info-circle"></i> <span></span></h3>
+            <p id="tourText"></p>
+            <div class="tour-buttons">
+                <button id="tourPrev" class="secondary">Précédent</button>
+                <button id="tourNext">Suivant</button>
+                <button id="tourSkip" class="tour-skip">Passer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        // ========== GESTION DU THÈME ==========
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const themeBtn = document.getElementById('themeBtn');
+            const icon = themeBtn.querySelector('i');
+            if (document.body.classList.contains('dark-theme')) {
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+            document.getElementById('themeBtn').querySelector('i').className = 'fas fa-moon';
+        }
+
+        document.getElementById('themeBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleTheme();
+            setActive('themeBtn');
+        });
+
+        // ========== DONNÉES INITIALES ==========
+        let FORFAITS_CARROUSEL = JSON.parse(localStorage.getItem('rocheSlides')) || [
+            { nom: "Standard Option 1", prix: "1900 – 2100 $", profondeur: "40-50 m", inclus: ["Aucun équipement"], client: ["PVC", "gravier", "pompe", "citerne", "accessoires électriques", "tuyauterie", "installation (payée par client)"], note: "Installation non incluse", image: "https://images.pexels.com/photos/1431283/pexels-photo-1431283.jpeg?auto=compress&cs=tinysrgb&w=800" },
+            { nom: "Standard Option 2", prix: "2200 – 2800 $", profondeur: "50-80 m", inclus: ["PVC", "gravier"], client: ["pompe", "citerne", "accessoires électriques", "tuyauterie", "installation (payée par client)"], note: "Pompe non incluse", image: "https://images.pexels.com/photos/257750/pexels-photo-257750.jpeg?auto=compress&cs=tinysrgb&w=800" },
+            { nom: "Moyen Profond", prix: "3 500 $", profondeur: "80-100 m", inclus: ["PVC", "gravier", "mise en place"], client: ["pompe", "citerne", "accessoires électriques", "tuyauterie", "installation (payée par client)"], note: "Pompe non incluse", image: "https://images.pexels.com/photos/162568/well-water-outdoor-field-162568.jpeg?auto=compress&cs=tinysrgb&w=800" },
+            { nom: "Profond", prix: "4 000 $", profondeur: "100-130 m", inclus: ["PVC", "gravier", "pompe immergée", "installation pompe"], client: ["citerne Jojo", "accessoires électriques", "tuyauterie", "installation électrique complémentaire"], note: "Pompe et installation incluses", image: "https://images.pexels.com/photos/56733/pexels-photo-56733.jpeg?auto=compress&cs=tinysrgb&w=800" }
+        ];
+
+        let FORFAITS_DEVIS = JSON.parse(localStorage.getItem('rocheForfaits')) || {
+            standard1: { name: "Standard Option 1", priceMin: 1900, priceMax: 2100, minDepth: 40, maxDepth: 50, rocheInclus: [], clientFournit: ["PVC", "gravier", "pompe", "citerne", "accessoires électriques", "tuyauterie", "installation (si souhaitée)"], note: "Aucun équipement fourni par ROCHE." },
+            standard2: { name: "Standard Option 2", priceMin: 2200, priceMax: 2800, minDepth: 50, maxDepth: 80, rocheInclus: ["PVC", "gravier"], clientFournit: ["pompe", "citerne", "accessoires électriques", "tuyauterie", "installation (si souhaitée)"], note: "Pompe non incluse." },
+            moyen: { name: "Moyen Profond", price: 3500, minDepth: 80, maxDepth: 100, rocheInclus: ["PVC", "gravier", "mise en place"], clientFournit: ["pompe", "citerne", "accessoires électriques", "tuyauterie", "installation pompe (si souhaitée)"], note: "Pompe non incluse." },
+            profond: { name: "Profond", price: 4000, minDepth: 100, maxDepth: 130, rocheInclus: ["PVC", "gravier", "pompe immergée", "installation pompe"], clientFournit: ["citerne Jojo", "accessoires électriques", "tuyauterie", "installation électrique complémentaire"], note: "Pompe et installation incluses." }
+        };
+
+        let SERVICES_COMPLEMENTAIRES = JSON.parse(localStorage.getItem('rocheServices')) || [
+            { name: "Détection de nappe", price: 200 },
+            { name: "Installation complète", price: 500 },
+            { name: "Installation pompe simple", price: 120 },
+            { name: "Entretien du puits", price: 800 },
+            { name: "Débouchage du puits", price: 1800 }
+        ];
+
+        // Configuration IA
+        let AI_CONFIG = JSON.parse(localStorage.getItem('rocheAiConfig')) || {
+            enabled: true,
+            iconUrl: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png",
+            color1: "#0b4f6c",
+            color2: "#0a3b4f"
+        };
+
+        // Délai d'appui long pour l'image du contrat (sauvegardé séparément)
+        let CONTRACT_LONG_PRESS_DELAY = parseInt(localStorage.getItem('rocheContractLongPressDelay')) || 600;
+
+        // Paramètres de limitation des téléchargements d'image contrat
+        let DOWNLOAD_LIMIT_SETTINGS = JSON.parse(localStorage.getItem('rocheDownloadLimit')) || {
+            enabled: false,
+            limit: 5
+        };
+
+        // Compteur de téléchargements (par session)
+        let downloadCount = parseInt(sessionStorage.getItem('contractDownloadCount')) || 0;
+
+        function updateDownloadCounterDisplay() {
+            const display = document.getElementById('downloadCounterDisplay');
+            if (display) {
+                if (DOWNLOAD_LIMIT_SETTINGS.enabled) {
+                    display.innerHTML = `Téléchargements effectués cette session : ${downloadCount} / ${DOWNLOAD_LIMIT_SETTINGS.limit}`;
+                } else {
+                    display.innerHTML = `Téléchargements effectués cette session : ${downloadCount} (aucune limite)`;
+                }
+            }
+        }
+
+        // Menu IA personnalisable
+        let IA_MENU_ITEMS = JSON.parse(localStorage.getItem('rocheIaItems')) || [
+            { icon: "fa-magic", label: "Aide au choix du forfait", action: "suggestForfait()" },
+            { icon: "fa-balance-scale", label: "Comparer les forfaits", action: "compareForfaits()" },
+            { icon: "fab fa-whatsapp", label: "Contacter un conseiller", action: "openMenu('whatsapp')" },
+            { icon: "fa-calculator", label: "Devis forage", action: "document.getElementById('devisForage').scrollIntoView({behavior:'smooth'}); toggleAIMenu();" },
+            { icon: "fa-wrench", label: "Devis services", action: "document.getElementById('devisServices').scrollIntoView({behavior:'smooth'}); toggleAIMenu();" },
+            { icon: "fa-file-pdf", label: "Formulaire vierge", action: "document.getElementById('blankContractOverlay').style.display='flex'; toggleAIMenu();" },
+            { icon: "fa-question-circle", label: "Guide de bienvenue", action: "startTour(); toggleAIMenu();" }
+        ];
+
+        // Étapes du guide personnalisables (avec cible et position)
+        let GUIDE_STEPS = JSON.parse(localStorage.getItem('rocheGuideSteps')) || [
+            { title: "Bienvenue !", text: "Bonjour, je suis votre assistant virtuel. Je vais vous guider à travers les fonctionnalités du site ROCHE SERVICE.", target: ".header-card", position: "bottom" },
+            { title: "Accueil", text: "En haut, vous trouverez les coordonnées de l'entreprise et les boutons de contact direct (Finance, Marketing, Support).", target: ".direct-buttons", position: "bottom" },
+            { title: "Carrousel", text: "Le carrousel présente nos principaux forfaits de forage. Vous pouvez voir les détails (prix, profondeur, inclus...).", target: ".mySwiper", position: "top" },
+            { title: "Forfaits détaillés", text: "Plus bas, les forfaits sont listés avec leurs caractéristiques. Un appui long sur le titre permet de télécharger l'image du contrat.", target: "#forfaitsTitle", position: "bottom" },
+            { title: "Devis forage", text: "Cette section permet d'obtenir un devis personnalisé en fonction de la profondeur souhaitée. Vous pouvez confirmer et envoyer la demande par WhatsApp.", target: "#devisForage", position: "top" },
+            { title: "Devis services", text: "Pour des prestations complémentaires (installation, entretien...), vous pouvez sélectionner les services et obtenir un devis.", target: "#devisServices", position: "top" },
+            { title: "Historique", text: "Consultez les commandes déjà passées par d'autres clients.", target: "#showHistoryBtn", position: "top" },
+            { title: "Assistant IA", text: "Le bouton flottant vous donne accès à des raccourcis utiles : aide au choix, comparaison, etc.", target: "#aiButton", position: "left" }
+        ];
+
+        // Contacts
+        let CONTACTS = JSON.parse(localStorage.getItem('rocheContacts')) || {
+            finance: "243990631496",
+            marketing: "243992622340",
+            support: "243973813369"
+        };
+
+        // Image contrat
+        let CONTRACT_IMAGE = localStorage.getItem('rocheContractImage') || null;
+
+        // Message de bienvenue
+        let WELCOME_SETTINGS = JSON.parse(localStorage.getItem('rocheWelcome')) || {
+            enabled: true,
+            text: "Bienvenue sur le site officiel ROCHE SERVICE, créé par le fondateur LBK",
+            delay: 5
+        };
+
+        // Ordre des sections
+        let SECTION_ORDER = JSON.parse(localStorage.getItem('rocheSectionOrder')) || [
+            'carousel', 'forfaits', 'devisForage', 'devisServices', 'servicesComplementaires', 'historique', 'garanties', 'contact'
+        ];
+
+        let TESTIMONIALS = JSON.parse(localStorage.getItem('rocheTestimonials')) || [];
+        let adminPassword = localStorage.getItem('adminPassword') || "1234";
+
+        // ========== FONCTIONS D'ORDRE DES SECTIONS ==========
+        function applySectionOrder() {
+            const container = document.getElementById('sectionsContainer');
+            const sections = Array.from(container.children);
+            sections.sort((a, b) => {
+                const aSection = a.dataset.section;
+                const bSection = b.dataset.section;
+                return SECTION_ORDER.indexOf(aSection) - SECTION_ORDER.indexOf(bSection);
+            });
+            sections.forEach(section => container.appendChild(section));
+        }
+
+        function renderSectionOrderList() {
+            const listDiv = document.getElementById('sectionOrderList');
+            listDiv.innerHTML = '';
+            const order = SECTION_ORDER;
+            const sectionNames = {
+                carousel: 'Carrousel',
+                forfaits: 'Forfaits détaillés',
+                devisForage: 'Devis forage',
+                devisServices: 'Devis services',
+                servicesComplementaires: 'Services complémentaires',
+                historique: 'Historique',
+                garanties: 'Garanties',
+                contact: 'Contact WhatsApp'
+            };
+            order.forEach(sectionKey => {
+                const item = document.createElement('div');
+                item.className = 'section-order-item';
+                item.setAttribute('data-key', sectionKey);
+                item.innerHTML = `<i class="fas fa-grip-vertical"></i> ${sectionNames[sectionKey] || sectionKey}`;
+                listDiv.appendChild(item);
+            });
+
+            new Sortable(listDiv, {
+                animation: 150,
+                handle: '.fa-grip-vertical',
+                onEnd: function(evt) {
+                    const newOrder = [];
+                    document.querySelectorAll('#sectionOrderList .section-order-item').forEach(el => {
+                        newOrder.push(el.dataset.key);
+                    });
+                    SECTION_ORDER = newOrder;
+                }
+            });
+        }
+
+        document.getElementById('saveSectionOrderBtn')?.addEventListener('click', function() {
+            localStorage.setItem('rocheSectionOrder', JSON.stringify(SECTION_ORDER));
+            applySectionOrder();
+            showToast('Ordre des sections sauvegardé');
+        });
+
+        // ========== TÉLÉCHARGEMENT DE L'IMAGE DU CONTRAT (appui long) avec limite ==========
+        function downloadContractImage() {
+            if (CONTRACT_IMAGE) {
+                // Vérification de la limite
+                if (DOWNLOAD_LIMIT_SETTINGS.enabled) {
+                    if (downloadCount >= DOWNLOAD_LIMIT_SETTINGS.limit) {
+                        showModal('Limite atteinte', `Vous avez atteint la limite de ${DOWNLOAD_LIMIT_SETTINGS.limit} téléchargements autorisés pour cette session.`);
+                        return;
+                    }
+                }
+
+                const link = document.createElement('a');
+                link.href = CONTRACT_IMAGE;
+                link.download = 'contrat_roche_service.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Incrémenter le compteur
+                downloadCount++;
+                sessionStorage.setItem('contractDownloadCount', downloadCount);
+                updateDownloadCounterDisplay();
+                showToast(`Téléchargement effectué (${downloadCount}/${DOWNLOAD_LIMIT_SETTINGS.enabled ? DOWNLOAD_LIMIT_SETTINGS.limit : '∞'})`);
+            } else {
+                showModal('Information', 'Aucune image de contrat n’a été téléchargée. Veuillez en ajouter une dans l’admin (onglet Contrat).');
+            }
+        }
+
+        // ========== TOUR INTERACTIF AMÉLIORÉ (uniquement via bouton IA) ==========
+        let currentTourStep = 0;
+        let tourActive = false;
+
+        function startTour() {
+            if (GUIDE_STEPS.length === 0) return;
+            currentTourStep = 0;
+            tourActive = true;
+            document.getElementById('tourOverlay').style.display = 'block';
+            updateTourStep();
+        }
+
+        function endTour() {
+            tourActive = false;
+            document.getElementById('tourOverlay').style.display = 'none';
+            removeHighlight();
+            localStorage.setItem('guideVisited', 'true');
+        }
+
+        function removeHighlight() {
+            document.querySelectorAll('.tour-highlight').forEach(el => {
+                el.classList.remove('tour-highlight');
+            });
+        }
+
+        function updateTourStep() {
+            if (!tourActive) return;
+            const step = GUIDE_STEPS[currentTourStep];
+            if (!step) return;
+
+            document.getElementById('tourTitle').innerHTML = `<i class="fas fa-info-circle"></i> ${step.title}`;
+            document.getElementById('tourText').innerText = step.text;
+
+            document.getElementById('tourPrev').disabled = currentTourStep === 0;
+            document.getElementById('tourNext').innerText = currentTourStep === GUIDE_STEPS.length - 1 ? 'Terminer' : 'Suivant';
+
+            let targetEl = null;
+            if (step.target) {
+                targetEl = document.querySelector(step.target);
+            }
+            if (!targetEl) {
+                targetEl = document.body;
+                step.position = 'center';
+            }
+
+            removeHighlight();
+            if (targetEl !== document.body) {
+                targetEl.classList.add('tour-highlight');
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            const tooltip = document.getElementById('tourTooltip');
+            const arrow = document.getElementById('tourArrow');
+            if (step.position === 'center') {
+                tooltip.style.top = '50%';
+                tooltip.style.left = '50%';
+                tooltip.style.transform = 'translate(-50%, -50%)';
+                arrow.style.display = 'none';
+            } else {
+                const rect = targetEl.getBoundingClientRect();
+                const tooltipWidth = 340;
+                const tooltipHeight = tooltip.offsetHeight || 200;
+                let top, left;
+                arrow.className = 'arrow ' + step.position;
+                arrow.style.display = 'block';
+
+                switch (step.position) {
+                    case 'top':
+                        top = rect.top - tooltipHeight - 20;
+                        left = rect.left + rect.width / 2 - tooltipWidth / 2;
+                        break;
+                    case 'bottom':
+                        top = rect.bottom + 20;
+                        left = rect.left + rect.width / 2 - tooltipWidth / 2;
+                        break;
+                    case 'left':
+                        top = rect.top + rect.height / 2 - tooltipHeight / 2;
+                        left = rect.left - tooltipWidth - 20;
+                        break;
+                    case 'right':
+                        top = rect.top + rect.height / 2 - tooltipHeight / 2;
+                        left = rect.right + 20;
+                        break;
+                }
+                top = Math.max(10, Math.min(window.innerHeight - tooltipHeight - 10, top));
+                left = Math.max(10, Math.min(window.innerWidth - tooltipWidth - 10, left));
+                tooltip.style.top = top + 'px';
+                tooltip.style.left = left + 'px';
+                tooltip.style.transform = 'none';
+            }
+        }
+
+        document.getElementById('tourPrev').addEventListener('click', () => {
+            if (currentTourStep > 0) {
+                currentTourStep--;
+                updateTourStep();
+            }
+        });
+
+        document.getElementById('tourNext').addEventListener('click', () => {
+            if (currentTourStep < GUIDE_STEPS.length - 1) {
+                currentTourStep++;
+                updateTourStep();
+            } else {
+                endTour();
+            }
+        });
+
+        document.getElementById('tourSkip').addEventListener('click', endTour);
+
+        window.addEventListener('resize', () => {
+            if (tourActive) updateTourStep();
+        });
+
+        // Suppression du déclenchement automatique du guide au chargement
+        // Le guide n'est accessible que via le bouton IA
+
+        // ========== MISE À JOUR DES LIENS DE CONTACT ==========
+        function updateContactLinks() {
+            const directDiv = document.getElementById('directButtons');
+            directDiv.innerHTML = `
+                <a href="https://api.whatsapp.com/send?phone=${CONTACTS.finance}&text=Bonjour%20ROCHE%20SERVICE%20(Finance)" target="_blank" aria-label="Finance WhatsApp"><i class="fab fa-whatsapp"></i> Finance</a>
+                <a href="https://api.whatsapp.com/send?phone=${CONTACTS.marketing}&text=Bonjour%20ROCHE%20SERVICE%20(Marketing)" target="_blank" aria-label="Marketing WhatsApp"><i class="fab fa-whatsapp"></i> Marketing</a>
+                <a href="https://api.whatsapp.com/send?phone=${CONTACTS.support}&text=Bonjour%20ROCHE%20SERVICE%20(Support)" target="_blank" aria-label="Support WhatsApp"><i class="fab fa-whatsapp"></i> Support</a>
+            `;
+        }
+        updateContactLinks();
+
+        // ========== FONCTIONS HISTORIQUE ==========
+        function saveTestimonials() {
+            localStorage.setItem('rocheTestimonials', JSON.stringify(TESTIMONIALS));
+        }
+
+        function addTestimonial(name, city, phone, adresse, service, details) {
+            TESTIMONIALS.unshift({ name, city, phone, adresse, service, details, date: new Date().toLocaleDateString('fr-FR') });
+            if (TESTIMONIALS.length > 50) TESTIMONIALS = TESTIMONIALS.slice(0, 50);
+            saveTestimonials();
+        }
+
+        function showHistoryModal() {
+            const historyContent = document.getElementById('historyContent');
+            if (TESTIMONIALS.length === 0) {
+                historyContent.innerHTML = '<p style="text-align:center;">Aucune commande enregistrée.</p>';
+            } else {
+                historyContent.innerHTML = `
+                    <table class="history-table">
+                        <tr><th>Date</th><th>Client</th><th>Ville</th><th>Service</th><th>Téléphone</th></tr>
+                        ${TESTIMONIALS.map(t => `
+                            <tr>
+                                <td>${t.date}</td>
+                                <td>${t.name}</td>
+                                <td>${t.city}</td>
+                                <td>${t.service}</td>
+                                <td>${t.phone || ''}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                `;
+            }
+            document.getElementById('historyOverlay').style.display = 'flex';
+        }
+
+        function closeHistoryModal(e) {
+            if (!e || e.target.id === 'historyOverlay') 
+                document.getElementById('historyOverlay').style.display = 'none';
+        }
+
+        document.getElementById('showHistoryBtn').addEventListener('click', showHistoryModal);
+
+        // ========== ENVOI WHATSAPP À TOUS ==========
+        function sendWhatsAppToAll(message) {
+            [CONTACTS.finance, CONTACTS.marketing, CONTACTS.support].forEach(num => {
+                window.open(`https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(message)}`, '_blank');
+            });
+        }
+
+        // ========== SWIPER ==========
+        let swiper;
+
+        function initSwiper() {
+            if (swiper) swiper.destroy(true, true);
+            swiper = new Swiper('.mySwiper', {
+                loop: true,
+                autoplay: { delay: parseInt(document.getElementById('autoplaySpeed')?.value || 6) * 1000 },
+                pagination: { el: '.swiper-pagination' }
+            });
+        }
+
+        function renderCarousel() {
+            const wrapper = document.getElementById('carouselWrapper');
+            wrapper.innerHTML = '';
+            FORFAITS_CARROUSEL.forEach(f => {
+                const inclusList = Array.isArray(f.inclus) ? f.inclus.join(', ') : f.inclus;
+                const clientList = Array.isArray(f.client) ? f.client.join(', ') : f.client;
+                wrapper.innerHTML += `
+                    <div class="swiper-slide">
+                        <img src="${f.image}" alt="${f.nom}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
+                        <div class="slide-infos">
+                            <div class="forfait-nom">${f.nom}</div>
+                            <div class="forfait-prix">${f.prix}</div>
+                            <div class="forfait-details">
+                                <div class="forfait-details-item"><i class="fas fa-ruler"></i> <span>Profondeur : ${f.profondeur}</span></div>
+                                <div class="forfait-details-item"><i class="fas fa-check-circle"></i> <span><strong>Inclus :</strong> ${inclusList}</span></div>
+                                <div class="forfait-details-item"><i class="fas fa-user"></i> <span><strong>Client fournit :</strong> ${clientList}</span></div>
+                                ${f.note ? `<div class="forfait-note"><i class="fas fa-info-circle"></i> ${f.note}</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            if (swiper) swiper.update();
+        }
+
+        function renderForfaits() {
+            const container = document.getElementById('forfaitsContainer');
+            container.innerHTML = '<div class="card-title" id="forfaitsTitle"><i class="fas fa-bolt"></i> Nos forfaits réels</div>';
+            
+            const forfaitsList = [
+                { name: "Standard Option 1", price: "1900 – 2100 $", details: FORFAITS_DEVIS.standard1 },
+                { name: "Standard Option 2", price: "2200 – 2800 $", details: FORFAITS_DEVIS.standard2 },
+                { name: "Moyen Profond", price: "3 500 $", details: FORFAITS_DEVIS.moyen },
+                { name: "Profond", price: "4 000 $", details: FORFAITS_DEVIS.profond }
+            ];
+
+            forfaitsList.forEach(f => {
+                const inclus = f.details.rocheInclus.length ? f.details.rocheInclus.join(', ') : 'Aucun équipement';
+                const client = f.details.clientFournit.join(', ');
+                let priceDisplay = f.price;
+                if (f.details.priceMin && f.details.priceMax) {
+                    priceDisplay = `${f.details.priceMin} – ${f.details.priceMax} $`;
+                } else {
+                    priceDisplay = `${f.details.price} $`;
+                }
+                container.innerHTML += `
+                    <div class="forfait-block">
+                        <div class="forfait-titre"><span>${f.name}</span><span class="forfait-tarif">${priceDisplay}</span></div>
+                        <ul class="forfait-liste">
+                            <li><span class="ok">✓</span> ${f.details.minDepth}-${f.details.maxDepth} m max</li>
+                            ${f.details.rocheInclus.length ? '<li><span class="ok">✓</span> ' + inclus + '</li>' : '<li><span class="nok">✗</span> ' + inclus + '</li>'}
+                            <li><span class="nok">✗</span> Pompe ${f.details.rocheInclus.includes('pompe') ? 'incluse' : 'non incluse'}</li>
+                        </ul>
+                        <p class="note">Client fournit : ${client}. ${f.details.note}</p>
+                    </div>
+                `;
+            });
+            container.innerHTML += `<div class="note"><i class="fas fa-sync-alt"></i> Prix variables selon profondeur, zone, nature du sol. Étude technique recommandée.</div>`;
+
+            // Appui long sur le titre pour télécharger l'image du contrat (avec délai paramétrable et limite)
+            const titleElement = document.getElementById('forfaitsTitle');
+            if (titleElement) {
+                titleElement.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    downloadContractImage();
+                });
+                let longPressTimer;
+                titleElement.addEventListener('touchstart', () => {
+                    longPressTimer = setTimeout(() => {
+                        downloadContractImage();
+                    }, CONTRACT_LONG_PRESS_DELAY);
+                });
+                titleElement.addEventListener('touchend', () => clearTimeout(longPressTimer));
+                titleElement.addEventListener('touchcancel', () => clearTimeout(longPressTimer));
+                // Pour la souris (développement)
+                titleElement.addEventListener('mousedown', () => {
+                    longPressTimer = setTimeout(() => {
+                        downloadContractImage();
+                    }, CONTRACT_LONG_PRESS_DELAY);
+                });
+                titleElement.addEventListener('mouseup', () => clearTimeout(longPressTimer));
+                titleElement.addEventListener('mouseleave', () => clearTimeout(longPressTimer));
+            }
+        }
+
+        function renderServices() {
+            const display = document.getElementById('servicesDisplay');
+            display.innerHTML = SERVICES_COMPLEMENTAIRES.map(s => `
+                <div style="display:flex; justify-content:space-between; background:var(--note-bg); padding:12px 18px; border-radius:40px; margin-bottom:8px;">
+                    <span>${s.name}</span> <strong>${s.price} $</strong>
+                </div>
+            `).join('');
+
+            const checkboxes = document.getElementById('servicesCheckboxes');
+            checkboxes.innerHTML = '<p><strong>Services disponibles :</strong></p>' + 
+                SERVICES_COMPLEMENTAIRES.map((s, index) => `
+                    <label style="display:block; margin:8px 0;">
+                        <input type="checkbox" class="service-checkbox" value="${s.price}" data-index="${index}">
+                        ${s.name} (+${s.price}$)
+                    </label>
+                `).join('');
+            
+            document.querySelectorAll('.service-checkbox').forEach(cb => cb.addEventListener('change', updateDevisServices));
+        }
+
+        // ========== ADMIN : GESTION SLIDES ==========
+        function updateSlidesList() {
+            const listDiv = document.getElementById('slidesList');
+            listDiv.innerHTML = '';
+            FORFAITS_CARROUSEL.forEach((slide, index) => {
+                listDiv.innerHTML += `
+                    <div class="slide-item">
+                        <input type="checkbox" class="slide-checkbox" data-index="${index}">
+                        <span>${slide.nom} - ${slide.prix}</span>
+                        <div class="slide-actions">
+                            <button class="btn-secondary" style="padding:5px 10px;" onclick="editSlide(${index})"><i class="fas fa-edit"></i></button>
+                            <button class="btn-secondary" style="padding:5px 10px;" onclick="changeSlideImage(${index})"><i class="fas fa-image"></i> Changer image</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.changeSlideImage = function(index) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        FORFAITS_CARROUSEL[index].image = ev.target.result;
+                        localStorage.setItem('rocheSlides', JSON.stringify(FORFAITS_CARROUSEL));
+                        renderCarousel();
+                        updateSlidesList();
+                        showToast('Image du slide mise à jour');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        };
+
+        window.editSlide = function(index) {
+            const slide = FORFAITS_CARROUSEL[index];
+            document.getElementById('newTitle').value = slide.nom;
+            document.getElementById('newPrice').value = slide.prix;
+            document.getElementById('newProfondeur').value = slide.profondeur;
+            document.getElementById('newInclus').value = slide.inclus.join(', ');
+            document.getElementById('newClient').value = slide.client.join(', ');
+            document.getElementById('newNote').value = slide.note || '';
+            FORFAITS_CARROUSEL.splice(index, 1);
+            renderCarousel();
+            updateSlidesList();
+        };
+
+        document.getElementById('deleteSelectedBtn')?.addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('.slide-checkbox:checked');
+            const indices = Array.from(checkboxes).map(cb => parseInt(cb.dataset.index)).sort((a,b) => b - a);
+            indices.forEach(i => FORFAITS_CARROUSEL.splice(i, 1));
+            localStorage.setItem('rocheSlides', JSON.stringify(FORFAITS_CARROUSEL));
+            renderCarousel(); updateSlidesList(); showToast('Slides supprimés');
+        });
+
+        document.getElementById('deleteAllSlidesBtn')?.addEventListener('click', function() {
+            FORFAITS_CARROUSEL = [];
+            localStorage.setItem('rocheSlides', JSON.stringify(FORFAITS_CARROUSEL));
+            renderCarousel(); updateSlidesList(); showToast('Tous les slides supprimés');
+        });
+
+        document.getElementById('addSlideBtn')?.addEventListener('click', function() {
+            const title = document.getElementById('newTitle').value.trim();
+            const price = document.getElementById('newPrice').value.trim();
+            const profondeur = document.getElementById('newProfondeur').value.trim();
+            const inclus = document.getElementById('newInclus').value.split(',').map(s => s.trim());
+            const client = document.getElementById('newClient').value.split(',').map(s => s.trim());
+            const note = document.getElementById('newNote').value.trim();
+            const fileInput = document.getElementById('newImageFile');
+            
+            if (!title || !price || !profondeur) { showModal('Erreur', 'Veuillez remplir titre, prix et profondeur.'); return; }
+
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const newSlide = { nom: title, prix: price, profondeur, inclus, client, note, image: e.target.result };
+                    FORFAITS_CARROUSEL.push(newSlide);
+                    localStorage.setItem('rocheSlides', JSON.stringify(FORFAITS_CARROUSEL));
+                    renderCarousel(); updateSlidesList(); showToast('Slide ajouté');
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                const newSlide = { nom: title, prix: price, profondeur, inclus, client, note, image: 'https://images.pexels.com/photos/1431283/pexels-photo-1431283.jpeg?auto=compress&cs=tinysrgb&w=800' };
+                FORFAITS_CARROUSEL.push(newSlide);
+                localStorage.setItem('rocheSlides', JSON.stringify(FORFAITS_CARROUSEL));
+                renderCarousel(); updateSlidesList(); showToast('Slide ajouté (image par défaut)');
+            }
+        });
+
+        document.getElementById('autoplaySpeed')?.addEventListener('change', function() {
+            if (swiper) { swiper.params.autoplay.delay = parseInt(this.value) * 1000; swiper.autoplay.start(); showToast('Vitesse mise à jour'); }
+        });
+
+        // ========== ADMIN : GESTION FORFAITS ==========
+        function renderForfaitsEdit() {
+            const listDiv = document.getElementById('forfaitsEditList');
+            listDiv.innerHTML = '';
+            const keys = ['standard1', 'standard2', 'moyen', 'profond'];
+            keys.forEach(key => {
+                const f = FORFAITS_DEVIS[key];
+                const boxId = `forfait-${key}`;
+                listDiv.innerHTML += `
+                    <div id="${boxId}" class="forfait-edit-box ${key === 'standard1' ? 'active' : ''}">
+                        <strong>${f.name}</strong><br>
+                        <label>Profondeur min (m) :</label>
+                        <input type="number" id="depthMin_${key}" value="${f.minDepth}" style="width:100px;">
+                        <label>Profondeur max (m) :</label>
+                        <input type="number" id="depthMax_${key}" value="${f.maxDepth}" style="width:100px;"><br>
+                        ${f.price !== undefined ? 
+                            `<label>Prix fixe ($) :</label>
+                             <input type="number" id="price_${key}" value="${f.price}">` : 
+                            `<label>Prix min ($) :</label>
+                             <input type="number" id="priceMin_${key}" value="${f.priceMin}" style="width:100px;">
+                             <label>Prix max ($) :</label>
+                             <input type="number" id="priceMax_${key}" value="${f.priceMax}" style="width:100px;">`
+                        }
+                        <label>Inclus (séparés par ;) :</label>
+                        <textarea id="inclus_${key}" placeholder="Inclus" rows="3">${f.rocheInclus.join(';')}</textarea>
+                        <label>Client fournit (séparés par ;) :</label>
+                        <textarea id="client_${key}" placeholder="Client fournit" rows="3">${f.clientFournit.join(';')}</textarea>
+                        <label>Note :</label>
+                        <textarea id="note_${key}" placeholder="Note" rows="2">${f.note}</textarea>
+                        <hr>
+                    </div>
+                `;
+            });
+
+            document.querySelectorAll('.forfait-subtab').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.forfait-subtab').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelectorAll('.forfait-edit-box').forEach(box => box.classList.remove('active'));
+                    document.getElementById('forfait-' + this.dataset.forfait).classList.add('active');
+                });
+            });
+        }
+
+        document.getElementById('saveForfaitsBtn')?.addEventListener('click', function() {
+            const keys = ['standard1', 'standard2', 'moyen', 'profond'];
+            keys.forEach(key => {
+                const f = FORFAITS_DEVIS[key];
+                f.minDepth = parseInt(document.getElementById(`depthMin_${key}`).value) || f.minDepth;
+                f.maxDepth = parseInt(document.getElementById(`depthMax_${key}`).value) || f.maxDepth;
+                if (f.price !== undefined) {
+                    f.price = parseInt(document.getElementById(`price_${key}`).value) || f.price;
+                } else {
+                    f.priceMin = parseInt(document.getElementById(`priceMin_${key}`).value) || f.priceMin;
+                    f.priceMax = parseInt(document.getElementById(`priceMax_${key}`).value) || f.priceMax;
+                }
+                f.rocheInclus = document.getElementById(`inclus_${key}`).value.split(';').map(s => s.trim()).filter(s => s);
+                f.clientFournit = document.getElementById(`client_${key}`).value.split(';').map(s => s.trim()).filter(s => s);
+                f.note = document.getElementById(`note_${key}`).value;
+            });
+            localStorage.setItem('rocheForfaits', JSON.stringify(FORFAITS_DEVIS));
+            renderForfaits();
+            showToast('Forfaits mis à jour');
+        });
+
+        // ========== ADMIN : GESTION SERVICES ==========
+        function renderServicesEdit() {
+            const listDiv = document.getElementById('servicesEditList');
+            listDiv.innerHTML = '';
+            SERVICES_COMPLEMENTAIRES.forEach((s, index) => {
+                listDiv.innerHTML += `
+                    <div class="service-edit-item">
+                        <input type="text" id="serviceName_${index}" value="${s.name}" placeholder="Nom">
+                        <input type="number" id="servicePrice_${index}" value="${s.price}" placeholder="Prix" style="width:80px;">
+                        <button class="danger-btn" onclick="deleteService(${index})"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        window.deleteService = function(index) {
+            SERVICES_COMPLEMENTAIRES.splice(index, 1);
+            localStorage.setItem('rocheServices', JSON.stringify(SERVICES_COMPLEMENTAIRES));
+            renderServicesEdit();
+            renderServices();
+            showToast('Service supprimé');
+        };
+
+        document.getElementById('addServiceBtn')?.addEventListener('click', function() {
+            const name = document.getElementById('newServiceName').value.trim();
+            const price = parseInt(document.getElementById('newServicePrice').value);
+            if (!name || !price) { showModal('Erreur', 'Nom et prix requis'); return; }
+            SERVICES_COMPLEMENTAIRES.push({ name, price });
+            localStorage.setItem('rocheServices', JSON.stringify(SERVICES_COMPLEMENTAIRES));
+            renderServicesEdit();
+            renderServices();
+            showToast('Service ajouté');
+            document.getElementById('newServiceName').value = '';
+            document.getElementById('newServicePrice').value = '';
+        });
+
+        document.getElementById('deleteAllServicesBtn')?.addEventListener('click', function() {
+            SERVICES_COMPLEMENTAIRES = [];
+            localStorage.setItem('rocheServices', JSON.stringify(SERVICES_COMPLEMENTAIRES));
+            renderServicesEdit();
+            renderServices();
+            showToast('Tous les services supprimés');
+        });
+
+        // ========== ADMIN : GESTION IA ==========
+        function renderIaItems() {
+            const container = document.getElementById('iaItemsList');
+            container.innerHTML = '';
+            IA_MENU_ITEMS.forEach((item, index) => {
+                container.innerHTML += `
+                    <div class="ai-item-edit">
+                        <label>Icône Font Awesome (ex: fa-magic)</label>
+                        <input type="text" class="ia-icon" value="${item.icon}" placeholder="fa-magic">
+                        <label>Texte du menu</label>
+                        <input type="text" class="ia-label" value="${item.label}">
+                        <label>Action (code JavaScript)</label>
+                        <textarea class="ia-action" rows="2">${item.action}</textarea>
+                        <button class="danger-btn" onclick="removeIaItem(${index})"><i class="fas fa-trash"></i> Supprimer</button>
+                    </div>
+                `;
+            });
+        }
+
+        window.removeIaItem = function(index) {
+            IA_MENU_ITEMS.splice(index, 1);
+            renderIaItems();
+        };
+
+        document.getElementById('addIaItemBtn')?.addEventListener('click', function() {
+            IA_MENU_ITEMS.push({ icon: "fa-question", label: "Nouvel élément", action: "alert('Action')" });
+            renderIaItems();
+        });
+
+        document.getElementById('saveIaItemsBtn')?.addEventListener('click', function() {
+            const items = [];
+            document.querySelectorAll('.ai-item-edit').forEach(div => {
+                const icon = div.querySelector('.ia-icon').value;
+                const label = div.querySelector('.ia-label').value;
+                const action = div.querySelector('.ia-action').value;
+                items.push({ icon, label, action });
+            });
+            IA_MENU_ITEMS = items;
+            localStorage.setItem('rocheIaItems', JSON.stringify(IA_MENU_ITEMS));
+            renderIaMenu();
+            showToast('Menu IA mis à jour');
+        });
+
+        // Mise à jour de la configuration IA
+        function loadAiConfig() {
+            document.getElementById('aiEnabled').checked = AI_CONFIG.enabled;
+            document.getElementById('aiIconUrl').value = AI_CONFIG.iconUrl;
+            document.getElementById('aiColor1').value = AI_CONFIG.color1;
+            document.getElementById('aiColor2').value = AI_CONFIG.color2;
+            applyAiConfig();
+        }
+
+        function applyAiConfig() {
+            const aiButton = document.getElementById('aiButton');
+            if (!AI_CONFIG.enabled) {
+                aiButton.style.display = 'none';
+            } else {
+                aiButton.style.display = 'flex';
+                aiButton.style.background = `linear-gradient(145deg, ${AI_CONFIG.color1}, ${AI_CONFIG.color2})`;
+                aiButton.querySelector('img').src = AI_CONFIG.iconUrl;
+            }
+        }
+
+        // Sauvegarde de la config IA (appelée par le bouton "Sauvegarder" dans l'onglet IA)
+        document.getElementById('saveIaItemsBtn')?.addEventListener('click', function() {
+            AI_CONFIG.enabled = document.getElementById('aiEnabled').checked;
+            AI_CONFIG.iconUrl = document.getElementById('aiIconUrl').value;
+            AI_CONFIG.color1 = document.getElementById('aiColor1').value;
+            AI_CONFIG.color2 = document.getElementById('aiColor2').value;
+            localStorage.setItem('rocheAiConfig', JSON.stringify(AI_CONFIG));
+            applyAiConfig();
+            // Les items du menu sont sauvegardés juste avant dans le même handler
+        });
+
+        // ========== ADMIN : GESTION GUIDE ==========
+        function renderGuideStepsList() {
+            const listDiv = document.getElementById('guideStepsList');
+            listDiv.innerHTML = '';
+            GUIDE_STEPS.forEach((step, index) => {
+                listDiv.innerHTML += `
+                    <div class="guide-step-edit" data-index="${index}">
+                        <label>Titre</label>
+                        <input type="text" class="guide-title-input" value="${step.title}" placeholder="Titre">
+                        <label>Texte</label>
+                        <textarea class="guide-text-input" rows="2" placeholder="Texte">${step.text}</textarea>
+                        <label>Cible (sélecteur CSS, ex: .header-card)</label>
+                        <input type="text" class="guide-target-input" value="${step.target || ''}" placeholder="#id ou .classe">
+                        <label>Position (top, bottom, left, right)</label>
+                        <select class="guide-position-input">
+                            <option value="top" ${step.position === 'top' ? 'selected' : ''}>Haut</option>
+                            <option value="bottom" ${step.position === 'bottom' ? 'selected' : ''}>Bas</option>
+                            <option value="left" ${step.position === 'left' ? 'selected' : ''}>Gauche</option>
+                            <option value="right" ${step.position === 'right' ? 'selected' : ''}>Droite</option>
+                        </select>
+                        <div class="step-actions">
+                            <button class="btn-secondary" onclick="moveGuideStep(${index}, 'up')" ${index === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
+                            <button class="btn-secondary" onclick="moveGuideStep(${index}, 'down')" ${index === GUIDE_STEPS.length-1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+                            <button class="danger-btn" onclick="deleteGuideStep(${index})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.deleteGuideStep = function(index) {
+            GUIDE_STEPS.splice(index, 1);
+            renderGuideStepsList();
+        };
+
+        window.moveGuideStep = function(index, direction) {
+            if (direction === 'up' && index > 0) {
+                [GUIDE_STEPS[index-1], GUIDE_STEPS[index]] = [GUIDE_STEPS[index], GUIDE_STEPS[index-1]];
+            } else if (direction === 'down' && index < GUIDE_STEPS.length-1) {
+                [GUIDE_STEPS[index], GUIDE_STEPS[index+1]] = [GUIDE_STEPS[index+1], GUIDE_STEPS[index]];
+            }
+            renderGuideStepsList();
+        };
+
+        document.getElementById('addGuideStepBtn')?.addEventListener('click', function() {
+            GUIDE_STEPS.push({ title: "Nouvelle étape", text: "Description de l'étape.", target: "", position: "bottom" });
+            renderGuideStepsList();
+        });
+
+        document.getElementById('saveGuideStepsBtn')?.addEventListener('click', function() {
+            const newSteps = [];
+            document.querySelectorAll('.guide-step-edit').forEach(div => {
+                const title = div.querySelector('.guide-title-input').value;
+                const text = div.querySelector('.guide-text-input').value;
+                const target = div.querySelector('.guide-target-input').value;
+                const position = div.querySelector('.guide-position-input').value;
+                newSteps.push({ title, text, target, position });
+            });
+            GUIDE_STEPS = newSteps;
+            localStorage.setItem('rocheGuideSteps', JSON.stringify(GUIDE_STEPS));
+            showToast('Guide mis à jour');
+        });
+
+        document.getElementById('resetFirstVisitBtn')?.addEventListener('click', function() {
+            localStorage.removeItem('guideVisited');
+            showToast('Marqueur de première visite réinitialisé. Le guide s\'affichera au prochain chargement.');
+        });
+
+        // ========== ADMIN : GESTION ACCUEIL ==========
+        function loadWelcomeSettings() {
+            document.getElementById('welcomeEnabled').checked = WELCOME_SETTINGS.enabled;
+            document.getElementById('welcomeText').value = WELCOME_SETTINGS.text;
+            document.getElementById('welcomeDelay').value = WELCOME_SETTINGS.delay;
+        }
+
+        document.getElementById('saveWelcomeBtn')?.addEventListener('click', function() {
+            WELCOME_SETTINGS = {
+                enabled: document.getElementById('welcomeEnabled').checked,
+                text: document.getElementById('welcomeText').value.trim(),
+                delay: parseFloat(document.getElementById('welcomeDelay').value) || 5
+            };
+            localStorage.setItem('rocheWelcome', JSON.stringify(WELCOME_SETTINGS));
+            showToast('Message de bienvenue mis à jour');
+        });
+
+        // ========== ADMIN : GESTION CONTACTS ==========
+        document.getElementById('saveContactsBtn')?.addEventListener('click', function() {
+            const finance = document.getElementById('contactFinance').value.trim();
+            const marketing = document.getElementById('contactMarketing').value.trim();
+            const support = document.getElementById('contactSupport').value.trim();
+            if (!finance || !marketing || !support) { showModal('Erreur', 'Tous les numéros doivent être remplis'); return; }
+            CONTACTS = { finance, marketing, support };
+            localStorage.setItem('rocheContacts', JSON.stringify(CONTACTS));
+            updateContactLinks();
+            showToast('Numéros de contact mis à jour');
+        });
+
+        // ========== ADMIN : GESTION CONTRAT ==========
+        function updateContractPreview() {
+            const preview = document.getElementById('contractPreview');
+            if (CONTRACT_IMAGE) {
+                preview.src = CONTRACT_IMAGE;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        document.getElementById('uploadContractBtn')?.addEventListener('click', function() {
+            const fileInput = document.getElementById('contractImageUpload');
+            if (fileInput.files.length === 0) { showModal('Erreur', 'Veuillez sélectionner une image'); return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                CONTRACT_IMAGE = e.target.result;
+                localStorage.setItem('rocheContractImage', CONTRACT_IMAGE);
+                updateContractPreview();
+                showToast('Image contrat téléchargée');
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        });
+
+        document.getElementById('deleteContractBtn')?.addEventListener('click', function() {
+            CONTRACT_IMAGE = null;
+            localStorage.removeItem('rocheContractImage');
+            updateContractPreview();
+            showToast('Image contrat supprimée');
+        });
+
+        // Sauvegarde du délai d'appui long pour le contrat
+        document.getElementById('saveContractDelayBtn')?.addEventListener('click', function() {
+            const delay = parseInt(document.getElementById('contractLongPressDelay').value);
+            if (!isNaN(delay) && delay >= 200) {
+                CONTRACT_LONG_PRESS_DELAY = delay;
+                localStorage.setItem('rocheContractLongPressDelay', delay);
+                showToast('Délai d\'appui long sauvegardé');
+            } else {
+                showModal('Erreur', 'Veuillez entrer un délai valide (>=200ms)');
+            }
+        });
+
+        // Sauvegarde de la limite de téléchargements
+        document.getElementById('saveDownloadLimitBtn')?.addEventListener('click', function() {
+            DOWNLOAD_LIMIT_SETTINGS.enabled = document.getElementById('enableDownloadLimit').checked;
+            DOWNLOAD_LIMIT_SETTINGS.limit = parseInt(document.getElementById('downloadLimit').value) || 5;
+            localStorage.setItem('rocheDownloadLimit', JSON.stringify(DOWNLOAD_LIMIT_SETTINGS));
+            updateDownloadCounterDisplay();
+            showToast('Limite de téléchargements sauvegardée');
+        });
+
+        // ========== ADMIN : PERSONNALISATION (application immédiate) ==========
+        function loadDesignSettings() {
+            const root = document.documentElement.style;
+            document.getElementById('colorPrimary').value = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#0b4f6c';
+            document.getElementById('colorPrimaryDark').value = getComputedStyle(document.documentElement).getPropertyValue('--primary-dark').trim() || '#063145';
+            document.getElementById('colorAccent').value = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#f5b041';
+            document.getElementById('colorBg').value = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#f4f8fd';
+            document.getElementById('colorText').value = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#1a2e3f';
+            document.getElementById('fontFamily').value = getComputedStyle(document.documentElement).getPropertyValue('--font-family').trim().replace(/"/g, '');
+            document.getElementById('baseFontSize').value = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--base-font-size')) || 16;
+            document.getElementById('borderRadiusCard').value = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--border-radius-card')) || 30;
+            document.getElementById('borderRadiusBtn').value = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--border-radius-btn')) || 50;
+        }
+
+        function applyDesign() {
+            const root = document.documentElement.style;
+            root.setProperty('--primary', document.getElementById('colorPrimary').value);
+            root.setProperty('--primary-dark', document.getElementById('colorPrimaryDark').value);
+            root.setProperty('--accent', document.getElementById('colorAccent').value);
+            root.setProperty('--bg', document.getElementById('colorBg').value);
+            root.setProperty('--text', document.getElementById('colorText').value);
+            root.setProperty('--font-family', document.getElementById('fontFamily').value);
+            root.setProperty('--base-font-size', document.getElementById('baseFontSize').value + 'px');
+            root.setProperty('--border-radius-card', document.getElementById('borderRadiusCard').value + 'px');
+            root.setProperty('--border-radius-btn', document.getElementById('borderRadiusBtn').value + 'px');
+            // Sauvegarde
+            localStorage.setItem('rocheDesign', JSON.stringify({
+                primary: document.getElementById('colorPrimary').value,
+                primaryDark: document.getElementById('colorPrimaryDark').value,
+                accent: document.getElementById('colorAccent').value,
+                bg: document.getElementById('colorBg').value,
+                text: document.getElementById('colorText').value,
+                fontFamily: document.getElementById('fontFamily').value,
+                baseFontSize: document.getElementById('baseFontSize').value,
+                borderRadiusCard: document.getElementById('borderRadiusCard').value,
+                borderRadiusBtn: document.getElementById('borderRadiusBtn').value
+            }));
+        }
+
+        // Application immédiate lors de la modification des inputs
+        document.getElementById('colorPrimary')?.addEventListener('input', applyDesign);
+        document.getElementById('colorPrimaryDark')?.addEventListener('input', applyDesign);
+        document.getElementById('colorAccent')?.addEventListener('input', applyDesign);
+        document.getElementById('colorBg')?.addEventListener('input', applyDesign);
+        document.getElementById('colorText')?.addEventListener('input', applyDesign);
+        document.getElementById('fontFamily')?.addEventListener('input', applyDesign);
+        document.getElementById('baseFontSize')?.addEventListener('input', applyDesign);
+        document.getElementById('borderRadiusCard')?.addEventListener('input', applyDesign);
+        document.getElementById('borderRadiusBtn')?.addEventListener('input', applyDesign);
+
+        document.getElementById('applyDesignBtn')?.addEventListener('click', function() {
+            applyDesign();
+            showToast('Design appliqué');
+        });
+
+        document.getElementById('resetDesignBtn')?.addEventListener('click', function() {
+            localStorage.removeItem('rocheDesign');
+            location.reload();
+        });
+
+        const savedDesign = localStorage.getItem('rocheDesign');
+        if (savedDesign) {
+            const d = JSON.parse(savedDesign);
+            document.documentElement.style.setProperty('--primary', d.primary);
+            document.documentElement.style.setProperty('--primary-dark', d.primaryDark);
+            document.documentElement.style.setProperty('--accent', d.accent);
+            document.documentElement.style.setProperty('--bg', d.bg);
+            document.documentElement.style.setProperty('--text', d.text);
+            document.documentElement.style.setProperty('--font-family', d.fontFamily);
+            document.documentElement.style.setProperty('--base-font-size', d.baseFontSize + 'px');
+            document.documentElement.style.setProperty('--border-radius-card', d.borderRadiusCard + 'px');
+            document.documentElement.style.setProperty('--border-radius-btn', d.borderRadiusBtn + 'px');
+        }
+
+        // ========== ADMIN : HISTORIQUE ==========
+        function updateTestimonialsList() {
+            const listDiv = document.getElementById('testimonialsList');
+            if (!listDiv) return;
+            listDiv.innerHTML = '';
+            TESTIMONIALS.forEach((t, index) => {
+                listDiv.innerHTML += `
+                    <div class="testimonial-item">
+                        <span><strong>${t.name}</strong> (${t.city}) : ${t.service} - ${t.date}</span>
+                        <button class="danger-btn" style="padding:5px 10px;" onclick="deleteTestimonial(${index})"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        window.deleteTestimonial = function(index) {
+            TESTIMONIALS.splice(index, 1);
+            saveTestimonials();
+            updateTestimonialsList();
+            showToast('Commande supprimée');
+        };
+
+        document.getElementById('deleteAllTestimonialsBtn')?.addEventListener('click', function() {
+            TESTIMONIALS = [];
+            saveTestimonials();
+            updateTestimonialsList();
+            showToast('Historique effacé');
+        });
+
+        // ========== ADMIN : ONGLETS ==========
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('admin-' + this.dataset.tab).classList.add('active');
+                
+                if (this.dataset.tab === 'forfaits') renderForfaitsEdit();
+                if (this.dataset.tab === 'services') renderServicesEdit();
+                if (this.dataset.tab === 'ia') { renderIaItems(); loadAiConfig(); }
+                if (this.dataset.tab === 'guide') renderGuideStepsList();
+                if (this.dataset.tab === 'accueil') loadWelcomeSettings();
+                if (this.dataset.tab === 'contacts') {
+                    document.getElementById('contactFinance').value = CONTACTS.finance;
+                    document.getElementById('contactMarketing').value = CONTACTS.marketing;
+                    document.getElementById('contactSupport').value = CONTACTS.support;
+                }
+                if (this.dataset.tab === 'contrat') {
+                    updateContractPreview();
+                    document.getElementById('contractLongPressDelay').value = CONTRACT_LONG_PRESS_DELAY;
+                    document.getElementById('enableDownloadLimit').checked = DOWNLOAD_LIMIT_SETTINGS.enabled;
+                    document.getElementById('downloadLimit').value = DOWNLOAD_LIMIT_SETTINGS.limit;
+                    updateDownloadCounterDisplay();
+                }
+                if (this.dataset.tab === 'design') loadDesignSettings();
+                if (this.dataset.tab === 'ordre') renderSectionOrderList();
+                if (this.dataset.tab === 'historique') updateTestimonialsList();
+            });
+        });
+
+        // ========== ADMIN : CHANGER MOT DE PASSE ==========
+        document.getElementById('changePasswordBtn')?.addEventListener('click', function() {
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            if (!newPass || newPass !== confirm) { showModal('Erreur', 'Mots de passe non concordants'); return; }
+            adminPassword = newPass; localStorage.setItem('adminPassword', adminPassword); showToast('Mot de passe modifié');
+            document.getElementById('newPassword').value = ''; document.getElementById('confirmPassword').value = '';
+        });
+
+        // ========== ADMIN : DÉVERROUILLAGE ==========
+        document.getElementById('unlockAdmin').addEventListener('click', function() {
+            showAdminCodeModal();
+        });
+
+        document.getElementById('closeAdminBtn')?.addEventListener('click', function() {
+            document.getElementById('adminUpload').style.display = 'none'; showToast('Mode admin désactivé');
+        });
+
+        // ========== FONCTIONS DEVIS FORAGE ==========
+        function getForfaitFromDepth(depth) {
+            if (depth < 40) return null;
+            if (depth <= 50) return FORFAITS_DEVIS.standard1;
+            if (depth <= 80) return FORFAITS_DEVIS.standard2;
+            if (depth <= 100) return FORFAITS_DEVIS.moyen;
+            if (depth <= 130) return FORFAITS_DEVIS.profond;
+            return null;
+        }
+
+        function updateDevisForage() {
+            const depthInput = document.getElementById('profondeurForage').value;
+            let profondeur = parseFloat(depthInput);
+            
+            if (isNaN(profondeur) || profondeur < 40) {
+                document.getElementById('forfaitChoisiForage').innerText = 'Saisissez une profondeur (min 40m)';
+                document.getElementById('rochePartForage').innerText = '-';
+                document.getElementById('clientPartForage').innerText = '-';
+                document.getElementById('totalRocheForage').innerText = '0';
+                document.getElementById('clientResponsibilityForage').innerHTML = '';
+                return;
+            }
+            if (profondeur > 130) {
+                document.getElementById('forfaitChoisiForage').innerText = 'Profondeur max 130m';
+                return;
+            }
+
+            let forfait = getForfaitFromDepth(profondeur);
+            if (!forfait) return;
+
+            document.getElementById('forfaitChoisiForage').innerHTML = `Forfait : <strong>${forfait.name}</strong> (${forfait.minDepth}-${forfait.maxDepth} m)`;
+            document.getElementById('rochePartForage').innerText = forfait.rocheInclus.join(', ') || 'Aucun';
+            document.getElementById('clientPartForage').innerText = forfait.clientFournit.join(', ');
+            
+            let prixBase = '';
+            if (forfait.price !== undefined) {
+                prixBase = forfait.price;
+            } else {
+                prixBase = `${forfait.priceMin} – ${forfait.priceMax}`;
+            }
+            document.getElementById('totalRocheForage').innerText = prixBase;
+            document.getElementById('clientResponsibilityForage').innerHTML = "À fournir par le client : " + forfait.clientFournit.join(', ') + ". " + forfait.note;
+        }
+
+        document.getElementById('profondeurForage').addEventListener('input', updateDevisForage);
+
+        function validateForageForm() {
+            const name = document.getElementById('clientNameForage').value.trim();
+            const city = document.getElementById('clientCityForage').value.trim();
+            const phone = document.getElementById('clientPhoneForage').value.trim();
+            const adresse = document.getElementById('chantierAdresseForage').value.trim();
+            const profondeur = parseFloat(document.getElementById('profondeurForage').value);
+            const accept = document.getElementById('acceptTermsForage').checked;
+            if (!name || !city || !phone || !adresse || isNaN(profondeur)) { showModal('Erreur', 'Remplissez tous les champs *.'); return false; }
+            if (profondeur < 40 || profondeur > 130) { showModal('Erreur', 'Profondeur 40-130m.'); return false; }
+            if (!accept) { showModal('Erreur', 'Acceptez la politique.'); return false; }
+            return true;
+        }
+
+        // ========== FONCTIONS DEVIS SERVICES ==========
+        function updateDevisServices() {
+            const checkboxes = document.querySelectorAll('.service-checkbox:checked');
+            let total = 0, services = [];
+            checkboxes.forEach(cb => { 
+                total += parseInt(cb.value); 
+                services.push(cb.parentNode.textContent.trim().replace(/\s*\(\+\d+\$\)/, '')); 
+            });
+            document.getElementById('servicesList').innerText = services.length ? services.join(', ') : 'Aucun service';
+            document.getElementById('totalServices').innerText = total;
+        }
+
+        function validateServicesForm() {
+            const name = document.getElementById('clientNameServices').value.trim();
+            const city = document.getElementById('clientCityServices').value.trim();
+            const phone = document.getElementById('clientPhoneServices').value.trim();
+            const adresse = document.getElementById('chantierAdresseServices').value.trim();
+            const accept = document.getElementById('acceptTermsServices').checked;
+            if (!name || !city || !phone || !adresse) { showModal('Erreur', 'Remplissez tous les champs *.'); return false; }
+            if (!accept) { showModal('Erreur', 'Acceptez la politique.'); return false; }
+            if (document.querySelectorAll('.service-checkbox:checked').length === 0) { showModal('Erreur', 'Sélectionnez au moins un service.'); return false; }
+            return true;
+        }
+
+        // ========== BOUTONS DE CONFIRMATION ==========
+        document.getElementById('confirmForageBtn').addEventListener('click', function() {
+            if (!validateForageForm()) return;
+            const name = document.getElementById('clientNameForage').value.trim();
+            const city = document.getElementById('clientCityForage').value.trim();
+            const phone = document.getElementById('clientPhoneForage').value.trim();
+            const adresse = document.getElementById('chantierAdresseForage').value.trim();
+            const profondeur = parseFloat(document.getElementById('profondeurForage').value);
+            const forfait = getForfaitFromDepth(profondeur);
+            if (!forfait) return;
+            const total = document.getElementById('totalRocheForage').innerText;
+            
+            const message = `NOUVELLE COMMANDE FORAGE\nNom: ${name}\nTél: ${phone}\nAdresse: ${adresse}\nForfait: ${forfait.name}\nProfondeur: ${profondeur}m\nTotal: ${total}\nFourni ROCHE: ${forfait.rocheInclus.join(', ')}\nClient fournit: ${forfait.clientFournit.join(', ')}`;
+            
+            sendWhatsAppToAll(message);
+            addTestimonial(name, city, phone, adresse, `Forage ${forfait.name} (${profondeur}m)`, message);
+            showToast('Commande confirmée ! Messages envoyés.');
+        });
+
+        document.getElementById('confirmServicesBtn').addEventListener('click', function() {
+            if (!validateServicesForm()) return;
+            const name = document.getElementById('clientNameServices').value.trim();
+            const city = document.getElementById('clientCityServices').value.trim();
+            const phone = document.getElementById('clientPhoneServices').value.trim();
+            const adresse = document.getElementById('chantierAdresseServices').value.trim();
+            const checkboxes = document.querySelectorAll('.service-checkbox:checked');
+            let services = [], total = 0;
+            checkboxes.forEach(cb => { total += parseInt(cb.value); services.push(cb.parentNode.textContent.trim().replace(/\s*\(\+\d+\$\)/, '')); });
+            
+            const message = `NOUVELLE COMMANDE SERVICES\nNom: ${name}\nTél: ${phone}\nAdresse: ${adresse}\nServices: ${services.join(', ')}\nTotal: ${total} USD`;
+            
+            sendWhatsAppToAll(message);
+            addTestimonial(name, city, phone, adresse, `Services: ${services.join(', ')}`, message);
+            showToast('Commande confirmée ! Messages envoyés.');
+        });
+
+        // ========== FONCTIONS D'IMPRESSION (HTML) ==========
+        function getPrintHeader(title) {
+            return `
+                <html>
+                <head>
+                    <title>${title} - ROCHE SERVICE</title>
+                    <style>
+                        body { font-family: 'Inter', Arial, sans-serif; padding: 30px; max-width: 800px; margin: auto; color: #1a2e3f; }
+                        h1 { color: #0b4f6c; border-bottom: 2px solid #f5b041; padding-bottom: 10px; text-align: center; }
+                        .section { margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 12px; }
+                        .label { font-weight: 700; color: #063145; }
+                        .total { font-size: 1.3em; background: #f5b041; color: #000; padding: 10px; border-radius: 30px; text-align: center; }
+                        footer { margin-top: 40px; font-size: 0.8rem; text-align: center; color: #5a6b7a; }
+                    </style>
+                </head>
+                <body>
+                    <h1>ROCHE SERVICE – ${title}</h1>
+                    <p style="text-align:center;"><strong>« L'eau, c'est la vie. »</strong></p>
+            `;
+        }
+
+        function getPrintFooter() {
+            const today = new Date().toLocaleDateString('fr-FR');
+            return `
+                    <footer>
+                        ROCHE SERVICE – Expert en forage d'eau à domicile – Kolwezi<br>
+                        Tél : +${CONTACTS.finance} / +${CONTACTS.marketing} / +${CONTACTS.support}<br>
+                        Fait à Kolwezi, le ${today}
+                    </footer>
+                </body>
+                </html>
+            `;
+        }
+
+        function printForageContract() {
+            if (!validateForageForm()) return;
+
+            const name = document.getElementById('clientNameForage').value.trim();
+            const city = document.getElementById('clientCityForage').value.trim();
+            const phone = document.getElementById('clientPhoneForage').value.trim();
+            const adresse = document.getElementById('chantierAdresseForage').value.trim();
+            const profondeur = parseFloat(document.getElementById('profondeurForage').value);
+            const forfait = getForfaitFromDepth(profondeur);
+            const total = document.getElementById('totalRocheForage').innerText;
+            const today = new Date().toLocaleDateString('fr-FR');
+
+            let printContent = getPrintHeader("Contrat de forage");
+            printContent += `
+                <div class="section">
+                    <h2>1. IDENTIFICATION</h2>
+                    <p><span class="label">PRESTATAIRE :</span> ROCHE SERVICE – Kolwezi, Commune Manika, Quartier Joli Site, Av. Jacques Masengo / Coin Av Mulumbiji<br>
+                    Tél : +${CONTACTS.finance} / +${CONTACTS.marketing} / +${CONTACTS.support} – contact@rocheservice.cd</p>
+                    <p><span class="label">CLIENT :</span> ${name} – Tél : ${phone}<br>Ville : ${city}<br>Adresse chantier : ${adresse}</p>
+                </div>
+
+                <div class="section">
+                    <h2>2. OBJET DU CONTRAT</h2>
+                    <p>Réalisation d’un forage de puits à domicile selon l’option choisie ci-dessous.</p>
+                </div>
+
+                <div class="section">
+                    <h2>3. PRESTATIONS ET TARIFS</h2>
+                    <p><span class="label">Type de forage :</span> ${forfait.name} (${profondeur} m, plage ${forfait.minDepth}-${forfait.maxDepth} m)</p>
+                    <p><span class="label">Inclus par ROCHE :</span> ${forfait.rocheInclus.join(', ') || 'Aucun équipement'}</p>
+                    <p><span class="label">À fournir par le client :</span> ${forfait.clientFournit.join(', ')}</p>
+                    <p><span class="label">Note :</span> ${forfait.note}</p>
+                    <p class="total">Total à payer à ROCHE : ${total} USD</p>
+                </div>
+
+                <div class="section">
+                    <h2>4. MODALITÉS DE PAIEMENT</h2>
+                    <ul>
+                        <li>Acompte à la commande (50% du total) à la signature</li>
+                        <li>Solde (50%) à la fin des travaux</li>
+                        <li>Modes acceptés : espèces, Mobile Money</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>5. DÉLAIS D'INTERVENTION</h2>
+                    <ul>
+                        <li>Délai standard : 48h après paiement de l'acompte</li>
+                        <li>Durée des travaux : 2 à 10 jours selon la profondeur</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>6. GARANTIES</h2>
+                    <ul>
+                        <li>Forage et installation : 12 mois</li>
+                        <li>Pompe (pièces) : 2 mois</li>
+                        <li>Assistance technique : 30 jours gratuits après installation</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>7. OBLIGATIONS DES PARTIES</h2>
+                    <p><span class="label">Prestataire :</span> travaux conformes aux normes, matériaux de qualité, respect des délais, propreté du site, remise d'une facture et d'un guide d'entretien.</p>
+                    <p><span class="label">Client :</span> garantir l'accès au site, payer l'acompte et le solde, suivre les recommandations d'entretien, signaler tout problème dans les 48h.</p>
+                </div>
+
+                <div class="section">
+                    <h2>8. DURÉE ET RÉSILIATION</h2>
+                    <p>Le contrat prend effet à la date de signature et s'achève à la réception complète des travaux et paiement total. Résiliation possible de commun accord, avec indemnisation proportionnelle aux travaux effectués.</p>
+                </div>
+
+                <div class="section">
+                    <h2>9. SIGNATURES</h2>
+                    <p>Fait en deux exemplaires, à Kolwezi, le ${today}.</p>
+                    <div style="display:flex; justify-content:space-between; margin-top:40px;">
+                        <div>Pour le client<br><br><div style="border-top:1px solid #000; width:200px; text-align:center; padding-top:5px;">Signature</div></div>
+                        <div>Pour ROCHE SERVICE<br><br><div style="border-top:1px solid #000; width:200px; text-align:center; padding-top:5px;">Signature</div></div>
+                    </div>
+                </div>
+            `;
+            printContent += getPrintFooter();
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+
+        function printServicesContract() {
+            if (!validateServicesForm()) return;
+
+            const name = document.getElementById('clientNameServices').value.trim();
+            const city = document.getElementById('clientCityServices').value.trim();
+            const phone = document.getElementById('clientPhoneServices').value.trim();
+            const adresse = document.getElementById('chantierAdresseServices').value.trim();
+            const checkboxes = document.querySelectorAll('.service-checkbox:checked');
+            let services = [], total = 0;
+            checkboxes.forEach(cb => { 
+                total += parseInt(cb.value); 
+                services.push(cb.parentNode.textContent.trim().replace(/\s*\(\+\d+\$\)/, '') + ' (+' + cb.value + '$)'); 
+            });
+            const today = new Date().toLocaleDateString('fr-FR');
+
+            let printContent = getPrintHeader("Contrat de services");
+            printContent += `
+                <div class="section">
+                    <h2>1. IDENTIFICATION</h2>
+                    <p><span class="label">PRESTATAIRE :</span> ROCHE SERVICE – Kolwezi, Commune Manika, Quartier Joli Site, Av. Jacques Masengo / Coin Av Mulumbiji<br>
+                    Tél : +${CONTACTS.finance} / +${CONTACTS.marketing} / +${CONTACTS.support} – contact@rocheservice.cd</p>
+                    <p><span class="label">CLIENT :</span> ${name} – Tél : ${phone}<br>Ville : ${city}<br>Adresse chantier : ${adresse}</p>
+                </div>
+
+                <div class="section">
+                    <h2>2. OBJET DU CONTRAT</h2>
+                    <p>Prestation de services complémentaires sur le puits.</p>
+                </div>
+
+                <div class="section">
+                    <h2>3. SERVICES COMMANDÉS</h2>
+                    <ul>
+                        ${services.map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                    <p class="total">Total à payer : ${total} USD</p>
+                </div>
+
+                <div class="section">
+                    <h2>4. MODALITÉS DE PAIEMENT</h2>
+                    <ul>
+                        <li>Paiement à la commande (50%) ou à la fin selon accord</li>
+                        <li>Modes acceptés : espèces, Mobile Money</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>5. DÉLAIS D'INTERVENTION</h2>
+                    <ul>
+                        <li>Délai standard : 48h après confirmation</li>
+                        <li>Durée des travaux : variable selon service</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>6. GARANTIES</h2>
+                    <ul>
+                        <li>Garantie de 3 mois sur les travaux effectués</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>7. SIGNATURES</h2>
+                    <p>Fait en deux exemplaires, à Kolwezi, le ${today}.</p>
+                    <div style="display:flex; justify-content:space-between; margin-top:40px;">
+                        <div>Pour le client<br><br><div style="border-top:1px solid #000; width:200px; text-align:center; padding-top:5px;">Signature</div></div>
+                        <div>Pour ROCHE SERVICE<br><br><div style="border-top:1px solid #000; width:200px; text-align:center; padding-top:5px;">Signature</div></div>
+                    </div>
+                </div>
+            `;
+            printContent += getPrintFooter();
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+
+        // ========== FONCTIONS PDF (jsPDF) ==========
+        function pdfForageContract() {
+            if (!validateForageForm()) return;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const primaryColor = [11, 79, 108]; // #0b4f6c
+            const accentColor = [245, 176, 65]; // #f5b041
+            const textColor = [26, 46, 63]; // #1a2e3f
+            const margin = 20;
+            let y = 20;
+            const lineHeight = 7;
+            const pageHeight = doc.internal.pageSize.height;
+
+            // Titre
+            doc.setFontSize(18);
+            doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.text("ROCHE SERVICE – Contrat de forage", margin, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+            doc.text("« L'eau, c'est la vie. »", margin, y);
+            y += 10;
+
+            // Données
+            const name = document.getElementById('clientNameForage').value.trim();
+            const city = document.getElementById('clientCityForage').value.trim();
+            const phone = document.getElementById('clientPhoneForage').value.trim();
+            const adresse = document.getElementById('chantierAdresseForage').value.trim();
+            const profondeur = parseFloat(document.getElementById('profondeurForage').value);
+            const forfait = getForfaitFromDepth(profondeur);
+            const total = document.getElementById('totalRocheForage').innerText;
+            const today = new Date().toLocaleDateString('fr-FR');
+
+            function addSection(title, lines) {
+                if (y > pageHeight - 50) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+                doc.setLineWidth(0.5);
+                doc.rect(margin-2, y-4, 180, lines.length * lineHeight + 12);
+                doc.setFontSize(12);
+                doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+                doc.text(title, margin, y);
+                y += 8;
+                doc.setFontSize(10);
+                doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+                lines.forEach(line => {
+                    // Gérer les lignes trop longues
+                    if (doc.getTextWidth(line) > 170) {
+                        const words = line.split(' ');
+                        let currentLine = '';
+                        words.forEach(word => {
+                            if (doc.getTextWidth(currentLine + word) < 170) {
+                                currentLine += (currentLine ? ' ' : '') + word;
+                            } else {
+                                doc.text(currentLine, margin, y);
+                                y += lineHeight;
+                                currentLine = word;
+                            }
+                        });
+                        if (currentLine) {
+                            doc.text(currentLine, margin, y);
+                            y += lineHeight;
+                        }
+                    } else {
+                        doc.text(line, margin, y);
+                        y += lineHeight;
+                    }
+                });
+                y += 5;
+            }
+
+            // Section 1
+            addSection("1. IDENTIFICATION", [
+                `PRESTATAIRE : ROCHE SERVICE – Kolwezi, Commune Manika, Quartier Joli Site, Av. Jacques Masengo / Coin Av Mulumbiji`,
+                `Tél : +${CONTACTS.finance} / +${CONTACTS.marketing} / +${CONTACTS.support} – contact@rocheservice.cd`,
+                `CLIENT : ${name} – Tél : ${phone}`,
+                `Ville : ${city}`,
+                `Adresse chantier : ${adresse}`
+            ]);
+
+            // Section 2
+            addSection("2. OBJET DU CONTRAT", [
+                "Réalisation d’un forage de puits à domicile selon l’option choisie ci-dessous."
+            ]);
+
+            // Section 3
+            const prestations = [
+                `Type de forage : ${forfait.name} (${profondeur} m, plage ${forfait.minDepth}-${forfait.maxDepth} m)`,
+                `Inclus par ROCHE : ${forfait.rocheInclus.join(', ') || 'Aucun équipement'}`,
+                `À fournir par le client : ${forfait.clientFournit.join(', ')}`,
+                `Note : ${forfait.note}`
+            ];
+            addSection("3. PRESTATIONS ET TARIFS", prestations);
+            // Total en surbrillance
+            doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+            doc.rect(margin-2, y-2, 180, 10, 'F');
+            doc.setTextColor(0,0,0);
+            doc.setFontSize(12);
+            doc.text(`Total à payer à ROCHE : ${total} USD`, margin, y+5);
+            y += 15;
+
+            // Section 4
+            addSection("4. MODALITÉS DE PAIEMENT", [
+                "Acompte à la commande (50% du total) à la signature",
+                "Solde (50%) à la fin des travaux",
+                "Modes acceptés : espèces, Mobile Money"
+            ]);
+
+            // Section 5
+            addSection("5. DÉLAIS D'INTERVENTION", [
+                "Délai standard : 48h après paiement de l'acompte",
+                "Durée des travaux : 2 à 10 jours selon la profondeur"
+            ]);
+
+            // Section 6
+            addSection("6. GARANTIES", [
+                "Forage et installation : 12 mois",
+                "Pompe (pièces) : 2 mois",
+                "Assistance technique : 30 jours gratuits après installation"
+            ]);
+
+            // Section 7
+            addSection("7. OBLIGATIONS DES PARTIES", [
+                "Prestataire : travaux conformes aux normes, matériaux de qualité, respect des délais, propreté du site, remise d'une facture et d'un guide d'entretien.",
+                "Client : garantir l'accès au site, payer l'acompte et le solde, suivre les recommandations d'entretien, signaler tout problème dans les 48h."
+            ]);
+
+            // Section 8
+            addSection("8. DURÉE ET RÉSILIATION", [
+                "Le contrat prend effet à la date de signature et s'achève à la réception complète des travaux et paiement total. Résiliation possible de commun accord, avec indemnisation proportionnelle aux travaux effectués."
+            ]);
+
+            // Section 9
+            addSection("9. SIGNATURES", [
+                `Fait en deux exemplaires, à Kolwezi, le ${today}.`,
+                "Pour le client : ______________________________",
+                "Pour ROCHE SERVICE : ______________________________"
+            ]);
+
+            // Pied de page
+            doc.setFontSize(8);
+            doc.setTextColor(100,100,100);
+            doc.text(`ROCHE SERVICE – Expert en forage d'eau à domicile – Kolwezi – Tél : +${CONTACTS.finance} / +${CONTACTS.marketing} / +${CONTACTS.support}`, margin, 280);
+
+            doc.save("contrat_forage_roche_service.pdf");
+        }
+
+        function pdfServicesContract() {
+            if (!validateServicesForm()) return;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const primaryColor = [11, 79, 108];
+            const accentColor = [245, 176, 65];
+            const textColor = [26, 46, 63];
+            const margin = 20;
+            let y = 20;
+            const lineHeight = 7;
+            const pageHeight = doc.internal.pageSize.height;
+
+            // Titre
+            doc.setFontSize(18);
+            doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.text("ROCHE SERVICE – Contrat de services", margin, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+            doc.text("« L'eau, c'est la vie. »", margin, y);
+            y += 10;
+
+            // Données
+            const name = document.getElementById('clientNameServices').value.trim();
+            const city = document.getElementById('clientCityServices').value.trim();
+            const phone = document.getElementById('clientPhoneServices').value.trim();
+            const adresse = document.getElementById('chantierAdresseServices').value.trim();
+            const checkboxes = document.querySelectorAll('.service-checkbox:checked');
+            let services = [], total = 0;
+            checkboxes.forEach(cb => { 
+                total += parseInt(cb.value); 
+                services.push(cb.parentNode.textContent.trim().replace(/\s*\(\+\d+\$\)/, '') + ' (+' + cb.value + '$)'); 
+            });
+            const today = new Date().toLocaleDateString('fr-FR');
+
+            function addSection(title, lines) {
+                if (y > pageHeight - 50) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+                doc.setLineWidth(0.5);
+                doc.rect(margin-2, y-4, 180, lines.length * lineHeight + 12);
+                doc.setFontSize(12);
+                doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+                doc.text(title, margin, y);
+                y += 8;
+                doc.setFontSize(10);
+                doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+                lines.forEach(line => {
+                    if (doc.getTextWidth(line) > 170) {
+                        const words = line.split(' ');
+                        let currentLine = '';
+                        words.forEach(word => {
+                            if (doc.getTextWidth(currentLine + word) < 170) {
+                                currentLine += (currentLine ? ' ' : '') + word;
+                            } else {
+                                doc.text(currentLine, margin, y);
+                                y += lineHeight;
+                                currentLine = word;
+                            }
+                        });
+                        if (currentLine) {
+                            doc.text(currentLine, margin, y);
+                            y += lineHeight;
+                        }
+                    } else {
+                        doc.text(line, margin, y);
+                        y += lineHeight;
+                    }
+                });
+                y += 5;
+            }
+
+            // Section 1
+            addSection("1. IDENTIFICATION", [
+                `PRESTATAIRE : ROCHE SERVICE – Kolwezi, Commune Manika, Quartier Joli Site, Av. Jacques Masengo / Coin Av Mulumbiji`,
+                `Tél : +${CONTACTS.finance} / +${CONTACTS.marketing} / +${CONTACTS.support} – contact@rocheservice.cd`,
+                `CLIENT : ${name} – Tél : ${phone}`,
+                `Ville : ${city}`,
+                `Adresse chantier : ${adresse}`
+            ]);
+
+            // Section 2
+            addSection("2. OBJET DU CONTRAT", [
+                "Prestation de services complémentaires sur le puits."
+            ]);
+
+            // Section 3
+            addSection("3. SERVICES COMMANDÉS", services);
+            // Total en surbrillance
+            doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+            doc.rect(margin-2, y-2, 180, 10, 'F');
+            doc.setTextColor(0,0,0);
+            doc.setFontSize(12);
+            doc.text(`Total à payer : ${total} USD`, margin, y+5);
+            y += 15;
+
+            // Section 4
+            addSection("4. MODALITÉS DE PAIEMENT", [
+                "Paiement à la commande (50%) ou à la fin selon accord",
+                "Modes acceptés : espèces, Mobile Money"
+            ]);
+
+            // Section 5
+            addSection("5. DÉLAIS D'INTERVENTION", [
+                "Délai standard : 48h après confirmation",
+                "Durée des travaux : variable selon service"
+            ]);
+
+            // Section 6
+            addSection("6. GARANTIES", [
+                "Garantie de 3 mois sur les travaux effectués"
+            ]);
+
+            // Section 7
+            addSection("7. SIGNATURES", [
+                `Fait en deux exemplaires, à Kolwezi, le ${today}.`,
+                "Pour le client : ______________________________",
+                "Pour ROCHE SERVICE : ______________________________"
+            ]);
+
+            // Pied de page
+            doc.setFontSize(8);
+            doc.setTextColor(100,100,100);
+            doc.text(`ROCHE SERVICE – Expert en forage d'eau à domicile – Kolwezi – Tél : +${CONTACTS.finance} / +${CONTACTS.marketing} / +${CONTACTS.support}`, margin, 280);
+
+            doc.save("contrat_services_roche_service.pdf");
+        }
+
+        // Attacher les événements des nouveaux boutons PDF
+        document.getElementById('pdfForageBtn')?.addEventListener('click', pdfForageContract);
+        document.getElementById('pdfServicesBtn')?.addEventListener('click', pdfServicesContract);
+
+        // ========== FORMULAIRE VIERGE : IMPRESSION ET PDF AMÉLIORÉ ==========
+        function printBlankForm() {
+            const today = new Date().toLocaleDateString('fr-FR');
+            let printContent = getPrintHeader("Formulaire d'engagement vierge");
+            printContent += `
+                <div class="section">
+                    <h2>1. IDENTITÉ DU CLIENT</h2>
+                    <p>Nom complet : _________________________</p>
+                    <p>Téléphone : _________________________</p>
+                    <p>WhatsApp : _________________________</p>
+                    <p>Adresse : _________________________</p>
+                    <p>Ville / Commune : _________________________</p>
+                    <p>Quartier : _________________________</p>
+                    <p>Numéro de pièce d'identité : _________________________</p>
+                </div>
+                <div class="section">
+                    <h2>2. IDENTIFICATION DU CHANTIER</h2>
+                    <p>Adresse du terrain : _________________________</p>
+                    <p>Commune / Ville : _________________________</p>
+                    <p>Quartier : _________________________</p>
+                    <p>Nom du propriétaire du terrain : _________________________</p>
+                    <p>Accès machine : ☐ Facile  ☐ Moyen  ☐ Difficile</p>
+                    <p>Type de terrain : ☐ Sable  ☐ Argile  ☐ Roche  ☐ Inconnu</p>
+                </div>
+                <div class="section">
+                    <h2>3. FORFAIT CHOISI</h2>
+                    <p>☐ Standard Option 1 (40-50 m) - 1 900 – 2 100 $</p>
+                    <p>☐ Standard Option 2 (50-80 m) - 2 200 – 2 800 $</p>
+                    <p>☐ Moyen Profond (80-100 m) - 3 500 $</p>
+                    <p>☐ Profond (100-130 m) - 4 000 $</p>
+                </div>
+                <div class="section">
+                    <h2>4. SERVICES COMPLÉMENTAIRES</h2>
+                    ${SERVICES_COMPLEMENTAIRES.map(s => `<p>☐ ${s.name} (+${s.price}$)</p>`).join('')}
+                </div>
+                <div class="section">
+                    <h2>5. DÉTAILS FINANCIERS</h2>
+                    <p>Montant total : _________________________ USD</p>
+                    <p>Acompte (50%) : ________________________ USD</p>
+                    <p>Solde restant : _________________________ USD</p>
+                    <p>Mode de paiement : ☐ Espèces  ☐ Mobile Money</p>
+                    <p>Date : ________/________/________</p>
+                </div>
+                <div class="section">
+                    <h2>6. SIGNATURES</h2>
+                    <div style="display:flex; justify-content:space-between; margin-top:40px;">
+                        <div>Pour le client<br><br><div style="border-top:1px solid #000; width:200px; text-align:center; padding-top:5px;">Signature</div></div>
+                        <div>Pour ROCHE SERVICE<br><br><div style="border-top:1px solid #000; width:200px; text-align:center; padding-top:5px;">Signature</div></div>
+                    </div>
+                </div>
+            `;
+            printContent += getPrintFooter();
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+
+        function pdfBlankForm() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const primaryColor = [11, 79, 108];
+            const accentColor = [245, 176, 65];
+            const textColor = [26, 46, 63];
+            const margin = 20;
+            let y = 20;
+            const lineHeight = 7;
+            const pageHeight = doc.internal.pageSize.height;
+
+            // Titre
+            doc.setFontSize(18);
+            doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.text("ROCHE SERVICE – FORMULAIRE D'ENGAGEMENT VIERGE", margin, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+            doc.text("« L'eau, c'est la vie. »", margin, y);
+            y += 10;
+            doc.setFontSize(10);
+            doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+            doc.text("Expert en forage d'eau à domicile – Kolwezi, Commune Manika, Quartier Joli Site", margin, y);
+            y += 6;
+            doc.text(`Contacts : +${CONTACTS.finance} | +${CONTACTS.marketing} | +${CONTACTS.support}`, margin, y);
+            y += 10;
+
+            function addSection(title, lines) {
+                if (y > pageHeight - 50) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+                doc.setLineWidth(0.5);
+                doc.rect(margin-2, y-4, 180, lines.length * lineHeight + 12);
+                doc.setFontSize(12);
+                doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+                doc.text(title, margin, y);
+                y += 8;
+                doc.setFontSize(10);
+                doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+                lines.forEach(line => {
+                    doc.text(line, margin, y);
+                    y += lineHeight;
+                });
+                y += 5;
+            }
+
+            addSection("1. IDENTITÉ DU CLIENT", [
+                "Nom complet : ________________________________________",
+                "Téléphone : ________________________________________",
+                "WhatsApp : _________________________________________",
+                "Adresse : __________________________________________",
+                "Ville / Commune : ___________________________________",
+                "Quartier : _________________________________________",
+                "Numéro de pièce d'identité : ________________________"
+            ]);
+
+            addSection("2. IDENTIFICATION DU CHANTIER", [
+                "Adresse du terrain : ________________________________",
+                "Commune / Ville : ___________________________________",
+                "Quartier : _________________________________________",
+                "Nom du propriétaire du terrain : _____________________",
+                "Accès machine : ☐ Facile  ☐ Moyen  ☐ Difficile",
+                "Type de terrain : ☐ Sable  ☐ Argile  ☐ Roche  ☐ Inconnu"
+            ]);
+
+            addSection("3. FORFAIT CHOISI", [
+                "☐ Standard Option 1 (40-50 m) - 1 900 – 2 100 $",
+                "☐ Standard Option 2 (50-80 m) - 2 200 – 2 800 $",
+                "☐ Moyen Profond (80-100 m) - 3 500 $",
+                "☐ Profond (100-130 m) - 4 000 $"
+            ]);
+
+            let servicesLines = SERVICES_COMPLEMENTAIRES.map(s => `☐ ${s.name} (+${s.price}$)`);
+            addSection("4. SERVICES COMPLÉMENTAIRES", servicesLines);
+
+            addSection("5. DÉTAILS FINANCIERS", [
+                "Montant total : _________________________ USD",
+                "Acompte (50%) : ________________________ USD",
+                "Solde restant : _________________________ USD",
+                "Mode de paiement : ☐ Espèces  ☐ Mobile Money",
+                "Date : ________/________/________"
+            ]);
+
+            addSection("6. SIGNATURES", [
+                "Pour le client :",
+                "Signature : ______________________________",
+                "",
+                "Pour ROCHE SERVICE :",
+                "Signature : ______________________________"
+            ]);
+
+            doc.save("formulaire_engagement_roche_service.pdf");
+        }
+
+        document.getElementById('printBlankFormBtn').addEventListener('click', printBlankForm);
+        document.getElementById('pdfBlankFormBtn').addEventListener('click', pdfBlankForm);
+
+        // ========== FONCTIONS IA ==========
+        function suggestForfait() {
+            const depth = document.getElementById('profondeurForage').value;
+            if (!depth || depth < 40) {
+                showModal('Information', "Veuillez d'abord saisir une profondeur dans le devis forage (min 40m).");
+                document.getElementById('devisForage').scrollIntoView({behavior:'smooth'});
+                return;
+            }
+            const forfait = getForfaitFromDepth(parseFloat(depth));
+            if (forfait) {
+                showModal('Forfait recommandé', `Selon la profondeur ${depth}m, le forfait recommandé est : ${forfait.name} (${forfait.minDepth}-${forfait.maxDepth}m).`);
+                document.getElementById('devisForage').scrollIntoView({behavior:'smooth'});
+            } else {
+                showModal('Erreur', "Profondeur hors limites (max 130m).");
+            }
+        }
+
+        function compareForfaits() {
+            let msg = "<strong>Comparaison des forfaits :</strong><br><ul>";
+            const keys = ['standard1', 'standard2', 'moyen', 'profond'];
+            keys.forEach(key => {
+                const f = FORFAITS_DEVIS[key];
+                let price = f.price ? f.price + "$" : `${f.priceMin}–${f.priceMax}$`;
+                msg += `<li>${f.name} : ${f.minDepth}-${f.maxDepth}m, ${price}</li>`;
+            });
+            msg += "</ul>";
+            showModal('Comparaison des forfaits', msg, true);
+        }
+
+        // ========== MENU IA DYNAMIQUE ==========
+        function renderIaMenu() {
+            const menu = document.getElementById('aiMenu');
+            menu.innerHTML = '';
+            IA_MENU_ITEMS.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'ai-menu-item';
+                div.innerHTML = `<i class="fas ${item.icon}"></i> ${item.label}`;
+                div.setAttribute('onclick', item.action + '; toggleAIMenu();');
+                menu.appendChild(div);
+            });
+        }
+
+        // Ajout du bouton dans l'en-tête
+        const headerCard = document.querySelector('.header-card');
+        const blankBtn = document.createElement('button');
+        blankBtn.className = 'admin-lock';
+        blankBtn.style.marginTop = '10px';
+        blankBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Formulaire engagement';
+        blankBtn.onclick = () => document.getElementById('blankContractOverlay').style.display = 'flex';
+        headerCard.appendChild(blankBtn);
+
+        function closeBlankContractModal(e) {
+            if (!e || e.target.id === 'blankContractOverlay') 
+                document.getElementById('blankContractOverlay').style.display = 'none';
+        }
+
+        // ========== POPUP CONTACT ==========
+        window.openMenu = function(type) {
+            const popOptions = document.getElementById('popOptions');
+            const popTitle = document.getElementById('popTitle');
+            if (!popOptions || !popTitle) {
+                showModal('Erreur', 'Fonction de contact temporairement indisponible');
+                return;
+            }
+            popTitle.innerHTML = type === 'whatsapp' ? 'WhatsApp' : 'Appel';
+            popOptions.innerHTML = '';
+            const services = [
+                { label: "💰 Service Finance", key: "finance" },
+                { label: "📊 Marketing & Devis", key: "marketing" },
+                { label: "🛠 Support Technique", key: "support" }
+            ];
+            services.forEach(s => {
+                const num = CONTACTS[s.key];
+                const url = type === 'whatsapp' ? `https://api.whatsapp.com/send?phone=${num}&text=Bonjour%20ROCHE%20SERVICE` : `tel:+${num}`;
+                popOptions.innerHTML += `<a href="${url}" class="menu-opt" target="_blank"><span>${s.label}</span><i class="fas ${type==='whatsapp' ? 'fa-paper-plane' : 'fa-phone'}"></i></a>`;
+            });
+            document.getElementById('contactOverlay').style.display = 'flex';
+        };
+
+        window.closePopup = function(e) { if (!e || e.target.id === 'contactOverlay') document.getElementById('contactOverlay').style.display = 'none'; };
+
+        document.getElementById('waGlobal').addEventListener('click', (e) => { e.preventDefault(); openMenu('whatsapp'); });
+        document.getElementById('callGlobal').addEventListener('click', (e) => { e.preventDefault(); openMenu('tel'); });
+        document.getElementById('waBtn').addEventListener('click', (e) => { e.preventDefault(); openMenu('whatsapp'); setActive('waBtn'); });
+        document.getElementById('callBtn').addEventListener('click', (e) => { e.preventDefault(); openMenu('tel'); setActive('callBtn'); });
+
+        // ========== IA FLOTTANTE ==========
+        const aiButton = document.getElementById('aiButton');
+        const aiMenu = document.getElementById('aiMenu');
+        aiButton.addEventListener('click', (e) => { e.stopPropagation(); aiMenu.style.display = aiMenu.style.display === 'block' ? 'none' : 'block'; });
+        document.addEventListener('click', function(e) { if (!aiButton.contains(e.target) && !aiMenu.contains(e.target)) aiMenu.style.display = 'none'; });
+        window.toggleAIMenu = () => { aiMenu.style.display = 'none'; };
+
+        // ========== NAVIGATION ACTIVE ==========
+        function setActive(id) { document.querySelectorAll('.bottom-nav a').forEach(a => a.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+        document.getElementById('homeBtn').addEventListener('click', (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); setActive('homeBtn'); });
+        document.getElementById('devisBtn').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('devisForage').scrollIntoView({ behavior: 'smooth' }); setActive('devisBtn'); });
+        document.getElementById('themeBtn').addEventListener('click', (e) => { e.preventDefault(); setActive('themeBtn'); });
+
+        function showToast(msg) { let t = document.getElementById('confirmationMessage'); t.style.display = 'block'; t.innerHTML = msg; setTimeout(() => t.style.display = 'none', 4000); }
+
+        // ========== MODALES SMART ==========
+        function showModal(title, message, isHtml = false) {
+            const modal = document.getElementById('smartModal');
+            document.getElementById('smartModalTitle').innerHTML = `<i class="fas fa-info-circle"></i> ${title}`;
+            const body = document.getElementById('smartModalBody');
+            if (isHtml) {
+                body.innerHTML = message;
+            } else {
+                body.innerText = message;
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeSmartModal(event) {
+            if (!event || event.target.id === 'smartModal' || event.target.classList.contains('smart-modal-close')) {
+                document.getElementById('smartModal').style.display = 'none';
+            }
+        }
+
+        // ========== MODALE CODE ADMIN ==========
+        function showAdminCodeModal() {
+            document.getElementById('adminCodeModal').style.display = 'flex';
+            document.getElementById('adminCodeInput').value = '';
+            document.getElementById('adminCodeInput').focus();
+        }
+
+        function closeAdminCodeModal() {
+            document.getElementById('adminCodeModal').style.display = 'none';
+        }
+
+        function submitAdminCode() {
+            const code = document.getElementById('adminCodeInput').value;
+            if (code === adminPassword) {
+                closeAdminCodeModal();
+                document.getElementById('adminUpload').style.display = 'flex';
+                updateSlidesList();
+                updateTestimonialsList();
+                renderForfaitsEdit();
+                renderServicesEdit();
+                renderIaItems();
+                renderGuideStepsList();
+                loadDesignSettings();
+                loadWelcomeSettings();
+                document.getElementById('contactFinance').value = CONTACTS.finance;
+                document.getElementById('contactMarketing').value = CONTACTS.marketing;
+                document.getElementById('contactSupport').value = CONTACTS.support;
+                updateContractPreview();
+                document.getElementById('contractLongPressDelay').value = CONTRACT_LONG_PRESS_DELAY;
+                document.getElementById('enableDownloadLimit').checked = DOWNLOAD_LIMIT_SETTINGS.enabled;
+                document.getElementById('downloadLimit').value = DOWNLOAD_LIMIT_SETTINGS.limit;
+                updateDownloadCounterDisplay();
+                loadAiConfig();
+                renderSectionOrderList();
+                showToast('Mode admin activé');
+            } else {
+                showModal('Accès refusé', 'Code incorrect');
+            }
+        }
+
+        // ========== INITIALISATION ==========
+        window.addEventListener('load', function() { 
+            applySectionOrder();
+            renderCarousel(); 
+            initSwiper(); 
+            renderForfaits();
+            renderServices();
+            updateDevisForage(); 
+            updateDevisServices();
+            renderIaMenu();
+            applyAiConfig();
+            showWelcomeMessage();
+            updateDownloadCounterDisplay();
+        });
+
+        // Message de bienvenue
+        function showWelcomeMessage() {
+            if (!WELCOME_SETTINGS.enabled) return;
+            const container = document.getElementById('welcomeMessageContainer');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'welcome-message';
+            msgDiv.innerText = WELCOME_SETTINGS.text;
+            container.innerHTML = '';
+            container.appendChild(msgDiv);
+            setTimeout(() => {
+                if (msgDiv.parentNode) msgDiv.remove();
+            }, WELCOME_SETTINGS.delay * 1000);
+        }
+    </script>
+</body>
+</html>
